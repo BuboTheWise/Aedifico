@@ -61,6 +61,7 @@ Ground rules:
 
 - **Anchors.** Every finding carries an anchor: session id + quote, commit sha, issue number, or drawer/diary id. Unanchored findings are hunches — label them and weight them down.
 - **One bucket per finding.** procedure → skill; stable fact → memory; episodic → MemChorus (or memory if absent); recurring trigger → cron; team → shared space. A procedure in memory is bloat; a one-off in a skill is sediment.
+- **MemChorus boundary.** Aedifico leverages MemChorus — it never replaces or re-implements it (no home-grown memory primitives). Defects found in MemChorus during a pass → file as a normal upstream issue (`github` skill: check for duplicates first) and hand to the development agent. Aedifico reports and routes; it does not absorb MemChorus's roadmap.
 - **OPSEC.** Artifacts that land in a public repo carry only the public account identity — no personal names, machine identities, or private agent handles.
 
 ## Procedure — Independent
@@ -85,6 +86,7 @@ Ground rules:
 - **Prose-only reflection** — failure mode #1. If step 6 has no artifact for a finding, apply one or delete the finding.
 - **Per-turn tax.** This is a bounded, scheduled pass — not a per-turn overhead. The turn (hot) scale is for the immediate moment; the scheduled pass covers session + weekly + cross-agent once, on the tick.
 - **MemChorus present but unused** — or invoked when absent. Detect first, every run.
+- **Absorbing MemChorus.** Re-implementing a MemChorus primitive or silently working around its bug with local scaffolding. File it per the boundary rule; another agent builds the fix.
 - **Skipping the self-contained digest** in collaborative mode. Assume the reader has nothing.
 - **Private memory as team storage.** Shared knowledge → shared space.
 - **Turn-level fix discharging the weekly level.** Horizons are independent.
