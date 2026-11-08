@@ -12,7 +12,7 @@ metadata:
 
 # Edification
 
-Multi-timescale reflection for Hermes agents: review your own history across four horizons (turn → session → weekly → cross-agent) and convert every finding into a durable artifact. Two modes, separable by design:
+Multi-timescale reflection for Hermes agents: **one bounded pass** — fired on demand or by a single scheduled tick — that reviews your history across four scales (turn → session → weekly → cross-agent) and converts findings into durable artifacts. Low overhead by design: when MemChorus is present it is the **primary durable layer** — deep reflections file there, so the tight hot `memory` stays lean instead of bloating. Two modes, separable by design:
 
 - **Independent** (default) — one agent, its own history, zero prerequisites beyond Hermes core.
 - **Collaborative** — layers Bot-Mode inter-agent exchange on top. One agent facilitates; roster members contribute scoped answers.
@@ -30,7 +30,7 @@ A reflection that does not end in artifacts is a journal entry, not edification.
 
 ## Capability Detection (run first, every run)
 
-1. **MemChorus** — `tool_search(queries=["mempalace diary"])`. Tools present (e.g. `mcp__mempalace__mempalace_diary_read`) → the MemChorus tier is active; use diary, knowledge graph, and drawers per `references/sources-map.md`. Absent → skip the tier; `memory` + `session_search` is the floor. Never assume MemChorus output exists.
+1. **MemChorus** — `tool_search(queries=["mempalace diary"])`. **Present → primary durable layer:** episodic reflections, cross-session facts, and verbatim records file to the diary / kg / drawers; only the highest-signal distilled facts get promoted to tight `memory`. This is the mechanism that keeps the whole pass low-overhead. Absent → `memory` + `session_search` carries the load. Not a requirement; detect first, every run, and never assume MemChorus output exists.
 2. **Bot-Mode** — `message_agent` in the tool list with a non-empty roster → collaborative mode available. Absent → collaborative degrades to a handoff document posted where the team reads (shared repo issue, decision doc).
 
 State the detected tier set in one line at the top of the report. Done when every source in the plan is either confirmed present or explicitly skipped.
@@ -83,6 +83,7 @@ Ground rules:
 ## Pitfalls
 
 - **Prose-only reflection** — failure mode #1. If step 6 has no artifact for a finding, apply one or delete the finding.
+- **Per-turn tax.** This is a bounded, scheduled pass — not a per-turn overhead. The turn (hot) scale is for the immediate moment; the scheduled pass covers session + weekly + cross-agent once, on the tick.
 - **MemChorus present but unused** — or invoked when absent. Detect first, every run.
 - **Skipping the self-contained digest** in collaborative mode. Assume the reader has nothing.
 - **Private memory as team storage.** Shared knowledge → shared space.
