@@ -6,9 +6,10 @@ Tool-level source map for the edification loop. Detection-first: confirm a tier 
 
 | Tier | Probe | Present when | Absent behavior |
 |---|---|---|---|
-| Hermes core | `session_search`, `memory`, `skills_list` in tool list | always, on any Hermes agent | (floor — cannot be absent) |
+| Hermes core | `memory`, `skills_list`, `read_file`/`search_files` in tool list | always, on any Hermes agent | (floor — cannot be absent) |
+| Session recall | `session_search` in tool list, else load via `tool_search(queries=["session history"])` | history tier available | session/weekly horizon degrades to hunches (thin evidence) — label, never block |
 | Cron | `cronjob_manage` in tool list or via `tool_search` | scheduled-work tier active | skip scheduled-work review |
-| MemChorus | `tool_search(queries=["mempalace diary"])` returns `mcp__mempalace__*` tools | durable-memory tier active | `memory` + `session_search` only |
+| MemChorus | `tool_search(queries=["mempalace diary"])` returns `mcp__mempalace__*` tools | durable-memory tier active | `memory` + session recall (or hunch fallback) only |
 | Bot-Mode | `message_agent` in tool list + non-empty roster | collaborative mode available | handoff doc in shared space |
 
 ## MemChorus tools (mempalace MCP)
@@ -34,6 +35,8 @@ Tool-level source map for the edification loop. Detection-first: confirm a tier 
 - Procedure or workflow → skill. Never file a procedure in MemChorus or memory expecting it to load at the right moment.
 
 ## session_search patterns
+
+Only when `session_search` is available (in the tool list, or loadable via `tool_search`). On an install where it is absent (e.g. some laptop profiles), the session/weekly horizon yields hunches — label them as thin evidence and do not block the pass.
 
 - Corrections: `session_search(query="'no' | 'not that' | 'actually'", session_id=...)` — user pushbacks are the highest-signal findings.
 - Failures: `session_search(query="error | failed | blocked", session_id=...)`.

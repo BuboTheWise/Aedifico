@@ -24,7 +24,7 @@ Two modes, deliberately separable:
 
 **Heavily leveraged when present, a clean floor when absent.** MemChorus (MemPalace) is the durable deep-copy memory layer: diary for episodic reflections, knowledge graph for cross-session facts, drawers for verbatim records, checkpoint for session capture.
 
-The skill detects MemChorus on every run (`tool_search`). Present → the loop reads and writes the diary, kg, and drawers, and files the deep copy there while `memory` stays the tight hot copy. Absent → the loop degrades gracefully to `memory` + `session_search`; nothing breaks, nothing is assumed. MemChorus is expected for our agents but is **not a requirement**.
+The skill detects MemChorus on every run (`tool_search`). Present → the loop reads and writes the diary, kg, and drawers, and files the deep copy there while `memory` stays the tight hot copy. Absent → the loop degrades gracefully to `memory` + session recall (or hunches where `session_search` isn't loaded); nothing breaks, nothing is assumed. MemChorus is expected for our agents but is **not a requirement**.
 
 ## Layout
 
