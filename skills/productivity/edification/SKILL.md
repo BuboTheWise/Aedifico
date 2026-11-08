@@ -48,6 +48,8 @@ Horizons are independent of each other: a turn-level fix does not discharge the 
 
 ## Sources (Hermes map)
 
+Tool-level detail — per-tier detection probes, the MemChorus tool table, `session_search` patterns, and acceptable anchor forms — lives in `references/sources-map.md`.
+
 | Source | Tool | Extract |
 |---|---|---|
 | Session history | `session_search` (query + session_id, then scroll) | user corrections, failed attempts, retried commands |
