@@ -1,7 +1,7 @@
 ---
 name: development-process
 description: "Team development standard: phases, gates, git discipline."
-version: 0.1.0
+version: 0.1.1
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -33,11 +33,12 @@ to build*; this standard wins for *how to build it*.
 
 ## Workflow Phases
 
-**Phase 0 — Preparation.** Query memory for workflow rules and past lessons.
-Read the current specs. Verify git state and versions. Break work into tasks,
-each with: Objective, Success Criteria, Required Testing, Verification Steps.
-Assign, and require acknowledgment of understanding before implementation
-starts. Completion: scope confirmed by both parties.
+**Phase 0 — Preparation.** Query the team's shared memory first for the canonical skills and
+recent learnings. Read the current specs. Verify git state and versions. Break
+work into atomic tasks — one card each, no compound cards — and every card must
+carry all four elements: Objective, Success Criteria, Required Testing,
+Verification Steps. Assign, and require acknowledgment of understanding before
+implementation starts. Completion: scope confirmed by both parties.
 
 **Phases 1–2 — Implement.** Implement only assigned tasks. Write tests for new
 code before calling it done. Build must pass. Commit and push immediately
@@ -58,6 +59,8 @@ Completion: the rule is written and versioned.
 - Cite before claim. Every factual assertion ties to a tool output or a document.
 - Errors are data. Deviations are disclosed immediately and fed back into process.
 - Artifacts outrank prose. A claim is only as real as the file, command, or URL behind it.
+- QA, stress testing, and verification are discrete steps or cards — never rolled into implementation.
+- Every rule and claim carries its own checkable verification, doable from the text alone.
 
 ## Git Discipline
 
@@ -83,6 +86,8 @@ Completion: the rule is written and versioned.
 - Project-specific special cases inside a shared standard — put them in the project spec.
 - Verifying the tool call instead of the result.
 - Accumulating rules without pruning the wording they replace.
+- Session-specific language in shared documents ("as we discussed", "the current build") — only stable, canonical facts survive contact with other machines.
+- Rules that need prior context to make sense — every rule must be self-contained and verifiable from its own text.
 
 ## Verification
 
