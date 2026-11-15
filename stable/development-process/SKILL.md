@@ -1,7 +1,7 @@
 ---
 name: development-process
-description: "Team development standard: phases, gates, git discipline."
-version: 0.1.2
+description: 'Use when doing development—task workflow, QA gates, git discipline.'
+version: 0.1.3
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
