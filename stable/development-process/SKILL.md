@@ -1,14 +1,16 @@
 ---
 name: development-process
 description: "Team development standard: phases, gates, git discipline."
-version: 0.1.1
+version: 0.1.2
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [development, standards, workflow, quality]
-    related_skills: []
+    related_skills:
+      - hermes-agent-skill-authoring
+      - requesting-code-review
 ---
 
 # Development Standard (Team)
@@ -64,12 +66,30 @@ Completion: the rule is written and versioned.
 
 ## Git Discipline
 
+### Branching Conventions
+- **Base branches:** `main` (default) or `develop` if team uses it.
+- **Feature branches:** `feature/<task-name>` e.g. `feature/agent-orchestration`.
+- **Fix branches:** `fix/<issue-id>-<short-desc>` e.g. `fix/gh-42-login-timeout`.
+- Naming: lowercase, hyphens (no underscores or CamelCase).
+- Delete feature branch after merge — never before review.
+
+### Commit Discipline
 - Commit format: `feat:`, `fix:`, `test:`, `docs:` followed by a short description.
 - One concern per commit. Push immediately after a green build.
-- Public artifacts carry the team identity only: no personal names, no machine
-  hostnames, no absolute home paths.
-- Issue flow: the task creator writes the issue; the executor implements; the
-  creator reviews; proof (real output) before merge.
+- **Git-first rule:** Every meaningful change is committed at the end of its discrete step. No "I'll commit everything at the end."
+
+### Public Artifacts
+- Carry the team identity only: no personal names, no machine hostnames, no absolute home paths.
+
+### Issue Flow
+- The task creator writes the issue; the executor implements; the creator reviews; proof (real output) before merge.
+
+## Code Review
+
+1. **Who reviews:** The other profile in a task pair OR Bubo as default reviewer for all GitHub ops.
+2. **Review scope:** Implementation correctness, test coverage, documentation accuracy, workflow compliance.
+3. **No silent approvals:** Reviews must cite specific files/lines with comments — no one-line "looks good" approvals.
+4. **GitHub operations:** Only Bubo (or the designated profile) performs `gh` CLI operations (push, PR creation, merge). Implementers provide patches or diffs for review first.
 
 ## Handoff and Collaboration
 
@@ -88,6 +108,15 @@ Completion: the rule is written and versioned.
 - Accumulating rules without pruning the wording they replace.
 - Session-specific language in shared documents ("as we discussed", "the current build") — only stable, canonical facts survive contact with other machines.
 - Rules that need prior context to make sense — every rule must be self-contained and verifiable from its own text.
+
+## Quality Checklist (Before Marking "Done")
+
+- [ ] All tests pass
+- [ ] No uncommitted working tree changes remain
+- [ ] Task board status updated ("Review Ready" or "Done")
+- [ ] Documentation matches implementation
+- [ ] Peer review completed and approved
+- [ ] Code location paths verified via `project-organization` skill
 
 ## Verification
 
