@@ -1,7 +1,7 @@
 ---
 name: development-process
-description: 'Use when doing development—task workflow, QA gates, git discipline.'
-version: 0.1.3
+description: 'Canonical team workflow, QA gates, and git discipline.'
+version: 0.1.4
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -42,14 +42,14 @@ carry all four elements: Objective, Success Criteria, Required Testing,
 Verification Steps. Assign, and require acknowledgment of understanding before
 implementation starts. Completion: scope confirmed by both parties.
 
-**Phases 1–2 — Implement.** Implement only assigned tasks. Write tests for new
+**Phase 1 — Implement.** Implement only assigned tasks. Write tests for new
 code before calling it done. Build must pass. Commit and push immediately
 after a green build. Completion: tests green, code pushed.
 
-**Phase 4 — Close.** Documentation current. Repository clean and pushed.
+**Phase 2 — Close.** Documentation current. Repository clean and pushed.
 Session lessons filed to memory. Completion: zero uncommitted work.
 
-**Phase 5 — Improve.** After each session, identify 1–3 concrete
+**Phase 3 — Improve.** After each session, identify 1–3 concrete
 improvements. A gap that recurs twice becomes a permanent rule here.
 Completion: the rule is written and versioned.
 
@@ -116,7 +116,7 @@ Completion: the rule is written and versioned.
 - [ ] Task board status updated ("Review Ready" or "Done")
 - [ ] Documentation matches implementation
 - [ ] Peer review completed and approved
-- [ ] Code location paths verified via `project-organization` skill
+- [ ] Code location verified per Rule One (dual-location: code in the git repo, docs in the vault)
 
 ## Verification
 
