@@ -24,17 +24,17 @@ Future additions will follow the same pattern (e.g., `stable/project-organizatio
 
 1. Copy the desired skill directory from this repo into your profile's skills tree:
    ```bash
-   cp -r stable/<skill-name> ~/.hermes/skills/optional-skills/<category>/<skill-name>/
+   cp -r stable/<skill-name> ~/.hermes/profiles/<profile>/skills/<category>/<skill-name>/
    ```
 2. The skill will be available on next Hermes session start.
 
 ### Option B: Git submodule (recommended for shared sync)
 
 ```bash
-cd ~/.hermes/skills/
+cd ~/.hermes/profiles/<profile>/skills/
 git submodule add https://github.com/BuboTheWise/Toolbox.git toolbox
-mkdir -p optional-skills/<category>
-ln -s "$HOME/.hermes/skills/toolbox/stable/<skill-name>" "optional-skills/<category>/<skill-name>"
+mkdir -p <category>
+ln -s "$HOME/.hermes/profiles/<profile>/skills/toolbox/stable/<skill-name>" "<category>/<skill-name>"
 ```
 
 ### Option C: Load in-session
@@ -52,7 +52,7 @@ skill_view(name='development-process')
 
 ***REMOVED***
 
-All skill content is derived from the team docs vault (`Vault/System/development workflow procedure.md`). Where this repo diverges from the vault, the vault takes precedence — changes here should be tracked back to vault updates.
+All skill content is derived from the team docs vault (`Vault/System/development workflow procedure.md`). Where this repo diverges from the vault, the repo is the governing copy — the vault documents are the historical source.
 
 ## Contributing
 
