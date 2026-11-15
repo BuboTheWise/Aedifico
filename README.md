@@ -1,69 +1,66 @@
-# Toolbox — Shared Development Skills for Hermes Agent
+# Toolbox — Importable Hermes Development Skills
 
-Canonical repository of reusable, importable skills for every Hermes Agent profile.
+Central repository for shared, versioned development skills used across Hermes Agent profiles (Bubo, an agent profile, an agent profile, an agent profile, etc.).
 
-## Overview
+## Purpose
 
-This repo hosts shared development process skills that any Hermes profile can load to standardize their workflow — task structure, QA separation, git discipline, and iterative improvement patterns.
+Every skill in this repo follows [Hermes Agent skill authoring standards](https://hermes-agent.nousresearch.com/docs) and the team's **Development Workflow Procedure** (source: the team docs vault, `Vault/System/development workflow procedure.md`). Skills are seeded here so all profiles can adopt a consistent, shared baseline rather than diverging independently.
 
-Skills are distributed as `skills/<name>/SKILL.md` files. Each skill is self-contained: proper frontmatter, When/How/Verification sections, and no external dependencies beyond the Hermes Agent runtime.
+## Directory Structure
 
-## Skills
+```
+stable/                     # All canonical, team-approved skills
+  <skill-name>/
+    SKILL.md                # Frontmatter + body per hermes-agent standards
+LICENSE
+README.md
+```
 
-### development-process
+Future additions will follow the same pattern (e.g., `stable/project-organization/SKILL.md`).
 
-**Purpose:** Standardize task workflow, phases, QA separation, and git-first discipline for all Hermes profiles.
+## How to Import a Skill
 
-**Coverage:**
-- Kanban task structure (Objective, Criteria, Testing, Verification)
-- Six-phase development workflow (Preparation → Code Quality → Feature Implementation → QA Review → Documentation → Iterative Improvement)
-- Git discipline (conventional commits, push rules)
-- QA protocols (review separation, review checklist)
-- Session logging (session log format)
+### Option A: Direct file copy
 
-**Import this skill by:**
-1. **Via `skill_view` tool** — call `skill_view(name='development-process')` after installing the skill to your profile
-2. **Via collective-wisdom plugin** — add this repo as a collective-wisdom source in your config
-3. **Direct path** — clone and reference `skills/development-process/SKILL.md` directly
+1. Copy the desired skill directory from this repo into your profile's skills tree:
+   ```bash
+   cp -r stable/<skill-name> ~/.hermes/skills/optional-skills/<category>/<skill-name>/
+   ```
+2. The skill will be available on next Hermes session start.
 
-## Install for Your Profile
-
-### Option A: skill_manage (recommended)
-
-Add to your profile's installed skills or use the collective-wisdom plugin to pull from this repo.
-
-### Option B: Clone locally
+### Option B: Git submodule (recommended for shared sync)
 
 ```bash
-git clone https://github.com/BuboTheWise/Toolbox.git ~/.hermes/toolbox
-# Then symlink or copy skills into your profile
-ln -s ~/.hermes/toolbox/skills ~/your-profile/skills/toolbox
+cd ~/.hermes/skills/
+git submodule add https://github.com/BuboTheWise/Toolbox.git toolbox
+mkdir -p optional-skills/<category>
+ln -s "$HOME/.hermes/skills/toolbox/stable/<skill-name>" "optional-skills/<category>/<skill-name>"
 ```
 
-### Option C: Add to config.yaml
+### Option C: Load in-session
 
-In your profile's `config.yaml`, add this repo as a skill source under the `skills` section so it loads automatically.
-
-## Contributing Skills
-
-1. Follow the [Hermes Agent Skill Authoring Standard](https://hermes-agent.nousresearch.com/docs/)
-2. Use proper SKILL.md frontmatter (name, description ≤60 chars, version, author, platforms)
-3. Include When to Use / Prerequisites / Procedure / Verification sections
-4. No machine-local paths in committed files
-5. One concern per skill — create a new skill rather than extending existing ones narrowly
-
-## Repo Structure
-
+Once the skill is in your skills tree (Option A or B), load it by name in an active session:
 ```
-Toolbox/
-├── README.md
-└── skills/
-    ├── development-process/
-    │   └── SKILL.md          # Task workflow, phases, QA, git discipline
-    └── [future-skills]/
-        └── SKILL.md
+skill_view(name='development-process')
 ```
 
-## License
+## Current Skills
 
-MIT. See each skill's frontmatter for its individual license and author credits.
+| Skill | Path | Description |
+|-------|------|-------------|
+| development-process | `stable/development-process/SKILL.md` | Canonical development workflow, task structure, and collaboration standards. |
+
+***REMOVED***
+
+All skill content is derived from the team docs vault (`Vault/System/development workflow procedure.md`). Where this repo diverges from the vault, the vault takes precedence — changes here should be tracked back to vault updates.
+
+## Contributing
+
+Skills are seeded by consensus (per the team's Kanban process). To add a new skill:
+1. Create it on a branch following SKILL.md authoring standards.
+2. Open a PR; review against the `hermes-agent-skill-authoring` hardline requirements.
+3. Merge to `main` after approval.
+
+---
+
+*First seed: 2026 — development-process canonical development workflow*
