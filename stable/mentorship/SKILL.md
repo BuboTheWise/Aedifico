@@ -1,5 +1,3 @@
-# Mentorship Skill — Loop Protocol
-
 ---
 
 name: mentorship
@@ -11,6 +9,8 @@ description: >
 category: dev
 
 ---
+
+# Mentorship Skill — Loop Protocol
 
 ## Overview {#overview}
 
