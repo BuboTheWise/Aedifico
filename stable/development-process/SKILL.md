@@ -1,7 +1,7 @@
 ---
 name: development-process
-description: 'Atomic card workflow: spec-first, QA gates, git discipline.'
-version: 0.2.1
+description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
+version: 0.2.2
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -111,13 +111,20 @@ No rule in this standard requires a second agent to be present:
 - No local branch that exists in no issue or PR.
 - Every card's final state is merge-or-park (see Quality Gates).
 
-### Public Artifacts
-- Carry the team identity only: no personal names, no machine hostnames, no absolute home paths.
+### OPSEC (public surface)
+- **The team identity is the only identity on any public surface.** Commits, PRs, issues, comments, skill text, and README carry the repository owner account only — no personal names, no local usernames, no machine hostnames, no internal hostnames, no absolute home paths.
+- **Assume public.** Anything that lands in the repository, a PR, an issue, or a shared skill file is public. Redact personal names, paths, and internal references before it ships.
+- **Never a personal GitHub identity on a public repository.** All `gh` operations (push, PR, issue, comment) run as the designated team/repo operator account.
+- **Check before shipping:** grep the diff for personal names, home paths, and hostnames — they must be zero.
 
 ### Repository Operations
 - A **designated repository operator** performs `gh` CLI operations (push, PR creation, merge). Implementers provide patches or diffs for review first.
 - All GitHub interaction goes through the `gh` CLI (issue edit/comment, PR, push) — via shell or `subprocess` — not raw `curl`. One auth path, consistent output.
-- Never a personal identity on a public repository.
+
+### Installation & Distribution
+- Profiles install shared skills and artifacts **from the canonical GitHub repository after merge to `main`** — never from a local dev clone, a working tree, or an unpushed branch.
+- **If a change is merged and pushed, the update path is a reinstall from the remote.** A local copy is never the source of truth handed to another profile.
+- A profile's working copy of a shared skill must match the remote `main`; verify by sha, not by "it looks right."
 
 ## Handoff and Collaboration
 
@@ -157,4 +164,4 @@ No rule in this standard requires a second agent to be present:
 
 ---
 
-*v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
+*v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
