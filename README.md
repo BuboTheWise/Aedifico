@@ -44,11 +44,15 @@ Once the skill is in your skills tree (Option A or B), load it by name in an act
 skill_view(name='development-process')
 ```
 
+
+## Source of Truth
+
+This repo is the governing source for development-process skills. Where vault documentation diverges, this repo takes precedence.
 ## Current Skills
 
 | Skill | Path | Description |
 |-------|------|-------------|
-| development-process | `stable/development-process/SKILL.md` | Canonical development workflow, task structure, and collaboration standards. |
+| development-process | `stable/development-process/SKILL.md` | Development workflow with board layers, claim protocol, card types (RUN/FIX/spec), solo mode, QA separation, and OPSEC standards. |
 
 ## Contributing
 
