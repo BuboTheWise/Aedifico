@@ -1,7 +1,7 @@
 ---
 name: development-process
 description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
-version: 0.2.2
+version: 0.2.3
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -58,6 +58,9 @@ build; this standard wins for *how* to build it.
 
 - QA, stress, and verification are always a **separate new task, run in a fresh context** — never concurrent with, and never rolled into, the development task.
 - The **same agent** that implemented may perform its own QA task. The requirement is *task* separation (a new context that has not seen the implementation), not *agent* separation.
+- **QA tier rule.** The team maintains a capability ranking (strongest → weakest). Conformance QA on a card implemented by the **weakest** tier must be assigned to a **higher** tier. Same-model QA (a separate fresh task) remains valid only when the implementer is not the weakest tier. Rationale (checked, not assumed): same-model re-reading by the weakest tier has a demonstrated blind spot — code paths present but unexercised under their failure condition (auth/key paths, fallback branches, timeout/budget walls that only fail when the real triggering condition is hit).
+- **Orchestrator duty:** when creating the QA card, set the assignee per the tier rule — do not default the QA card back to the implementer. A stronger-tier QA assignment works offline-of-whoever-implemented: the ranking lives in this standard, not in any one agent's context.
+- **Graduation:** a learner in the weakest tier may earn the right to self-QA in a given domain when they pass a separate discrete QA card on a subsequent real task in that domain (evidence on the board, not acknowledgment). Until then, the tier rule stands.
 - "Done" requires pasted real output covering the claimed scope — a full test suite green where the project defines one. A single test on a non-deterministic model is a finding, not a verdict.
 - Reviews cite specific files/lines — no one-line "looks good" approvals.
 
@@ -153,6 +156,7 @@ No rule in this standard requires a second agent to be present:
 - [ ] Task board status updated ("review" or "done")
 - [ ] Documentation matches implementation
 - [ ] QA task completed as a separate task, in a fresh context, with pasted output
+- [ ] If the implementer is the weakest tier: QA was assigned to a higher tier (QA tier rule), or the learner holds a passing QA card in this domain
 - [ ] Code location verified per Rule One (dual-location: code in the git repo, docs in the vault)
 - [ ] Card state is merged-or-park: branch merged, or a named open PR tracking it
 
@@ -164,4 +168,4 @@ No rule in this standard requires a second agent to be present:
 
 ---
 
-*v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
+*v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
