@@ -1,10 +1,10 @@
 # Toolbox — Importable Hermes Development Skills
 
-Central repository for shared, versioned development skills used across Hermes Agent profiles (Bubo, an agent profile, an agent profile, an agent profile, etc.).
+Central repository for shared, versioned development skills used across Hermes Agent profiles.
 
 ## Purpose
 
-Every skill in this repo follows [Hermes Agent skill authoring standards](https://hermes-agent.nousresearch.com/docs) and the team's **Development Workflow Procedure** (source: the team docs vault, `Vault/System/development workflow procedure.md`). Skills are seeded here so all profiles can adopt a consistent, shared baseline rather than diverging independently.
+Every skill in this repo follows [Hermes Agent skill authoring standards](https://hermes-agent.nousresearch.com/docs) and the team's **Development Workflow Procedure**. Skills are seeded here so all profiles can adopt a consistent, shared baseline rather than diverging independently.
 
 ## Directory Structure
 
@@ -50,10 +50,6 @@ skill_view(name='development-process')
 |-------|------|-------------|
 | development-process | `stable/development-process/SKILL.md` | Canonical development workflow, task structure, and collaboration standards. |
 
-***REMOVED***
-
-All skill content is derived from the team docs vault (`Vault/System/development workflow procedure.md`). Where this repo diverges from the vault, the repo is the governing copy — the vault documents are the historical source.
-
 ## Contributing
 
 Skills are seeded by consensus (per the team's Kanban process). To add a new skill:
@@ -63,4 +59,4 @@ Skills are seeded by consensus (per the team's Kanban process). To add a new ski
 
 ---
 
-*First seed: 2026 — development-process canonical development workflow*
+*First seed: 2026 — development-process (canonical development workflow).*
