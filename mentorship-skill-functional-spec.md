@@ -99,7 +99,8 @@ Overhead on stronger models is **strictly controlled** (distillation is on-deman
    tasks**, each in a fresh context — never rolled into the implementing task.
 6. **Portable + OPSEC-clean.** BuboTheWise identity only. No personal names, no local
    filesystem paths, no machine/hostnames. References to the dev standard use the canonical
-   name `development-process` (not any alternate spelling). Vault references are dropped
+   name `development-process` (not any alternate spelling). Any reference to an
+   internal-only store or tool is replaced with the public equivalent — or dropped —
    before promotion to the public Toolbox.
 
 ## 5. Core — the negotiation protocol (determining "stronger")
@@ -182,7 +183,7 @@ enforceable requirement.
   talk-only, atomic+enforceable lessons, overhead control (on-demand distillation), 1:1,
   output-based graduation, pull-emphasis, and the named phase-2 exclusions.
 - The spec is **portable**: zero local filesystem paths, zero personal names, BuboTheWise
-  identity only, no vault references.
+  identity only, no internal-only store references.
 - The spec states that (a) the `SKILL.md` implementation is a **separate later atomic task**
   with its **own separate QA card**, and (b) promotion into the public Toolbox
   (`stable/mentorship/`) is a **separate git-process step**, not part of this card.
@@ -235,7 +236,7 @@ enforceable requirement.
 - [ ] No absolute home-directory paths, no home-relative project paths, no volume labels.
 - [ ] No personal names, local usernames, or machine/internal hostnames; team identity only.
 - [ ] Dev standard referenced only as `development-process`.
-- [ ] No vault references (dropped before promotion).
+- [ ] No internal-only store references (dropped before promotion).
 - [ ] Any profile can follow this spec verbatim with no local context.
 
 ## 14. Dependencies / related documents
