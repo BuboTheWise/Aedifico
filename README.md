@@ -53,6 +53,7 @@ This repo is the governing source for development-process skills. Where vault do
 | Skill | Path | Description |
 |-------|------|-------------|
 | development-process | `stable/development-process/SKILL.md` | Development workflow with board layers, claim protocol, card types (RUN/FIX/spec), solo mode, QA separation, and OPSEC standards. |
+| mentorship | `stable/mentorship/SKILL.md` | Bidirectional teaching loop between heterogeneous local models: negotiate → accept (1:1) → distill → pull → hot recall → output-based graduation, with Truth-Enforcer guard and board-verifiable shared graduation state. |
 
 ## Contributing
 
