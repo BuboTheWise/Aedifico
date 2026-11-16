@@ -1,7 +1,7 @@
 ---
 name: development-process
 description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
-version: 0.2.3
+version: 0.2.4
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -63,6 +63,22 @@ build; this standard wins for *how* to build it.
 - **Graduation:** a learner in the weakest tier may earn the right to self-QA in a given domain when they pass a separate discrete QA card on a subsequent real task in that domain (evidence on the board, not acknowledgment). Until then, the tier rule stands.
 - "Done" requires pasted real output covering the claimed scope — a full test suite green where the project defines one. A single test on a non-deterministic model is a finding, not a verdict.
 - Reviews cite specific files/lines — no one-line "looks good" approvals.
+
+## Executed-QA gate (v0.2.4)
+
+A QA verdict on a change to **executable code** is not complete without at least one **executed check** of the changed code path. "Executed" is mechanical — one of these three admissible forms:
+
+1. **Run the changed line.** The code path containing the change actually runs in the target environment (the interpreter/runtime the code ships on) — not re-reading the diff in your head.
+2. **Invoke the API.** The function/method/endpoint the change touches is called with inputs that reach the changed behavior.
+3. **A test exercises the path.** A test runs the changed path, asserts on its output, and would have FAILED against the pre-fix code.
+
+A diff re-read (grep, regex, prose) is a **review**, not a QA verdict, and cannot stand alone as QA evidence for executable code.
+
+**What the verdict records.** The verdict pastes the executed check: the exact command (or the named test run) plus an output excerpt showing the changed path actually ran. A verdict whose evidence is diff-reading alone is incomplete — even if its prose says "verified."
+
+**Tier-agnostic.** This gate applies to every tier — no exemption. The QA tier rule above governs *who* may perform QA; this gate governs *what counts as a verdict*. The demonstrated failure mode (anchor below) is a property of static reading, not of the reader: a stronger model re-reading the same diff misses the same one-token typo. Execution is the only tier-independent substitute for judgment.
+
+**Anchor (why this gate exists).** Polygraph finding F8: `datetime.now().isoformat(timesep="seconds")` — a mistyped kwarg on a stdlib call — passed a diff-re-read QA round, then crashed at runtime when the battery executed the script on the canonical interpreter. Fix: commit `6549cb7` in the Polygraph repository ("F8 regression, battery crash … re-verify"), and the change was re-verified by executing the battery. Seven earlier findings were caught by reading; the eighth was one token and was only visible when the code ran.
 
 ## Solo Mode
 
@@ -156,6 +172,7 @@ No rule in this standard requires a second agent to be present:
 - [ ] Task board status updated ("review" or "done")
 - [ ] Documentation matches implementation
 - [ ] QA task completed as a separate task, in a fresh context, with pasted output
+- [ ] Executed-QA gate satisfied: the QA verdict pastes an executed check of the changed path — command (or test-run name) + output excerpt, and the check fails on the pre-fix code
 - [ ] If the implementer is the weakest tier: QA was assigned to a higher tier (QA tier rule), or the learner holds a passing QA card in this domain
 - [ ] Code location verified per Rule One (dual-location: code in the git repo, docs in the vault)
 - [ ] Card state is merged-or-park: branch merged, or a named open PR tracking it
@@ -168,4 +185,4 @@ No rule in this standard requires a second agent to be present:
 
 ---
 
-*v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
+*v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
