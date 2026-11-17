@@ -104,6 +104,7 @@ No rule in this standard requires a second agent to be present:
 ## Quality Gates (hard)
 
 - No uncommitted work at the end of a session. No exceptions.
+- **Clean-tree gate (v0.2.5).** A card is not done with an unclean tree, and a file that exists only on disk is not done. Before a card closes: (a) `git status --porcelain` must return empty — no modified, staged, or untracked files; (b) every artifact named on the card must appear in `git show --stat <sha>` of the card's landing commit (its merge commit, or the open PR's head commit if parked). Paste both commands' output on the card — both must be clean / present.
 - No "done" without a real, executed verification. Paste the actual output.
 - No fabricated results. A blocker reported honestly beats an invented success.
 - Cite before claim. Every factual assertion ties to a tool output or a document.
