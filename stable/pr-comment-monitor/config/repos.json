@@ -1,0 +1,7 @@
+{
+  "repos": [
+    "ollama/ollama",
+    "huggingface/transformers"
+  ],
+  "_note": "Add more repos as needed. Only include repos where BuboTheWise has active PRs or reviews."
+}
