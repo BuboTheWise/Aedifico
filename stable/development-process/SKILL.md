@@ -1,7 +1,7 @@
 ---
 name: development-process
 description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
-version: 0.2.5
+version: 0.2.4
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -74,22 +74,12 @@ A QA verdict on a change to **executable code** is not complete without at least
 
 A diff re-read (grep, regex, prose) is a **review**, not a QA verdict, and cannot stand alone as QA evidence for executable code.
 
-**Canonical interpreter (v0.2.5).** Runtime drift is invisible to static QA: the same stdlib call can be valid on one interpreter and crash on another (the F8 anchor below is exactly this failure mode). The interpreter is therefore named and pinned. (a) The project spec names the canonical interpreter — implementation and version — that the build and QA battery run under. (b) The QA card records the interpreter version (`python --version`, or the equivalent for the runtime) and a smoke of any changed stdlib or library call under that exact interpreter. (c) Where the project uses a dependency manifest, the pin (`requirements` or equivalent) is committed with the change. A verdict produced under a different interpreter than the canonical one is a finding, not a verdict.
-
 **What the verdict records.** The verdict pastes the executed check: the exact command (or the named test run) plus an output excerpt showing the changed path actually ran. A verdict whose evidence is diff-reading alone is incomplete — even if its prose says "verified."
 
 **Tier-agnostic.** This gate applies to every tier — no exemption. The QA tier rule above governs *who* may perform QA; this gate governs *what counts as a verdict*. The demonstrated failure mode (anchor below) is a property of static reading, not of the reader: a stronger model re-reading the same diff misses the same one-token typo. Execution is the only tier-independent substitute for judgment.
+**Canonical interpreter (v0.2.5).** Runtime drift is invisible to static QA: the same stdlib call can be valid on one interpreter and crash on another (the F8 anchor below is exactly this failure mode). The interpreter is therefore named and pinned. (a) The project spec names the canonical interpreter — implementation and version — that the build and QA battery run under. (b) The QA card records the interpreter version (`python --version`, or the equivalent for the runtime) and a smoke of any changed stdlib or library call under that exact interpreter. (c) Where the project uses a dependency manifest, the pin (`requirements` or equivalent) is committed with the change. A verdict produced under a different interpreter than the canonical one is a finding, not a verdict.
 
 **Anchor (why this gate exists).** Polygraph finding F8: `datetime.now().isoformat(timesep="seconds")` — a mistyped kwarg on a stdlib call — passed a diff-re-read QA round, then crashed at runtime when the battery executed the script on the canonical interpreter. Fix: commit `6549cb7` in the Polygraph repository ("F8 regression, battery crash … re-verify"), and the change was re-verified by executing the battery. Seven earlier findings were caught by reading; the eighth was one token and was only visible when the code ran.
-
-**Canonical interpreter gate (v0.2.5).**
-- **(a)** The dev standard or project spec names the exact canonical interpreter the QA/CI battery runs under.
-- **(b)** The QA card includes `python --version` **and** a smoke of any changed stdlib/library call *against that exact interpreter*.
-- **(c)** A dependency pin (`requirements`) is committed with the change.
-
-**Rationale:** runtime drift is invisible to static QA; pinning the interpreter makes the failure deterministic and checkable.
-
-**Evidence:** the Polygraph QA-finding cycle (F8) — a one-token stdlib typo that is valid on other interpreters but crashes on the canonical one.
 
 ## Solo Mode
 
@@ -199,4 +189,4 @@ No rule in this standard requires a second agent to be present:
 
 ---
 
-*v0.2.5 — Clean-tree gate (done gated on `git status --porcelain` clean + named artifacts in commit, Toolbox #11); canonical interpreter named and pinned in QA (Toolbox #12); bot-to-bot per-exchange cap + kanban-card fallback (Toolbox #14). v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
+*v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
