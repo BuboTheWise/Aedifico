@@ -1,0 +1,8 @@
+name: pr-comment-monitor-daily
+schedule: "0 4 * * *"
+timezone: America/Los_Angeles
+skills: [pr-comment-monitor, github]
+prompt: |
+  Run the PR comment monitor skill. Execute: python3 ~/.hermes/profiles/nyarlathotep/skills/pr-comment-monitor/scripts/pr_monitor.py
+  
+  Report findings: actionable comments across monitored repos with drafted replies. If no items need response, report "No comments needing response." Report any errors (API rate limits, auth issues) prominently.
