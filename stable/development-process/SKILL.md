@@ -1,7 +1,7 @@
 ---
 name: development-process
 description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
-version: 0.2.4
+version: 0.2.5
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -74,6 +74,8 @@ A QA verdict on a change to **executable code** is not complete without at least
 
 A diff re-read (grep, regex, prose) is a **review**, not a QA verdict, and cannot stand alone as QA evidence for executable code.
 
+**Canonical interpreter (v0.2.5).** Runtime drift is invisible to static QA: the same stdlib call can be valid on one interpreter and crash on another (the F8 anchor below is exactly this failure mode). The interpreter is therefore named and pinned. (a) The project spec names the canonical interpreter — implementation and version — that the build and QA battery run under. (b) The QA card records the interpreter version (`python --version`, or the equivalent for the runtime) and a smoke of any changed stdlib or library call under that exact interpreter. (c) Where the project uses a dependency manifest, the pin (`requirements` or equivalent) is committed with the change. A verdict produced under a different interpreter than the canonical one is a finding, not a verdict.
+
 **What the verdict records.** The verdict pastes the executed check: the exact command (or the named test run) plus an output excerpt showing the changed path actually ran. A verdict whose evidence is diff-reading alone is incomplete — even if its prose says "verified."
 
 **Tier-agnostic.** This gate applies to every tier — no exemption. The QA tier rule above governs *who* may perform QA; this gate governs *what counts as a verdict*. The demonstrated failure mode (anchor below) is a property of static reading, not of the reader: a stronger model re-reading the same diff misses the same one-token typo. Execution is the only tier-independent substitute for judgment.
@@ -102,6 +104,7 @@ No rule in this standard requires a second agent to be present:
 ## Quality Gates (hard)
 
 - No uncommitted work at the end of a session. No exceptions.
+- **Clean-tree gate (v0.2.5).** A card is not done with an unclean tree, and a file that exists only on disk is not done. Before a card closes: (a) `git status --porcelain` must return empty — no modified, staged, or untracked files; (b) every artifact named on the card must appear in `git show --stat <sha>` of the card's landing commit (its merge commit, or the open PR's head commit if parked). Paste both commands' output on the card — both must be clean / present.
 - No "done" without a real, executed verification. Paste the actual output.
 - No fabricated results. A blocker reported honestly beats an invented success.
 - Cite before claim. Every factual assertion ties to a tool output or a document.
@@ -150,6 +153,7 @@ No rule in this standard requires a second agent to be present:
 - A handoff is durable: the artifact lands on disk in the target's workspace (file, memory entry, issue). Chat is the go-signal, not the handoff.
 - State-changing work needs a read-back of the exact target before claiming success — a passing tool call is not a verified effect.
 - Coordinate before two agents edit the same tree.
+- **Bot-to-bot cap (v0.2.5).** Bot-to-bot exchanges are capped by a small per-exchange message budget (observed: 4). When the budget is hit — or when a reply must outlive the exchange — route it as a kanban card (durable, auditable, board-visible) instead of continuing a long chat thread. Do not keep retrying in chat. Short DMs remain fine as go-signals.
 
 ## Pitfalls
 
@@ -169,10 +173,12 @@ No rule in this standard requires a second agent to be present:
 
 - [ ] All tests pass
 - [ ] No uncommitted working-tree changes remain
+- [ ] Clean-tree gate satisfied: `git status --porcelain` empty, and every artifact named on the card present in `git show --stat <sha>` of the landing commit; both outputs pasted on the card
 - [ ] Task board status updated ("review" or "done")
 - [ ] Documentation matches implementation
 - [ ] QA task completed as a separate task, in a fresh context, with pasted output
 - [ ] Executed-QA gate satisfied: the QA verdict pastes an executed check of the changed path — command (or test-run name) + output excerpt, and the check fails on the pre-fix code
+- [ ] Canonical interpreter named and pinned: QA records `python --version` (or equivalent) matching the project spec's named canonical interpreter, plus a smoke of any changed stdlib/library call under it
 - [ ] If the implementer is the weakest tier: QA was assigned to a higher tier (QA tier rule), or the learner holds a passing QA card in this domain
 - [ ] Code location verified per Rule One (dual-location: code in the git repo, docs in the vault)
 - [ ] Card state is merged-or-park: branch merged, or a named open PR tracking it
@@ -185,4 +191,4 @@ No rule in this standard requires a second agent to be present:
 
 ---
 
-*v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
+*v0.2.5 — Clean-tree gate (done gated on `git status --porcelain` clean + named artifacts in commit, Toolbox #11); canonical interpreter named and pinned in QA (Toolbox #12); bot-to-bot per-exchange cap + kanban-card fallback (Toolbox #14). v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
