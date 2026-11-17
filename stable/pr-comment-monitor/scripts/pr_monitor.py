@@ -10,6 +10,7 @@ Usage:
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
@@ -60,7 +61,21 @@ def api_get(repo, resource):
 def needs_response(comment, cutoff):
     """Score a comment. Returns (score_100, reason). Higher score = more likely actionable."""
     author = comment.get("user", {}).get("login", "")
-    if author.lower() in ("bubothewise", "nyarlathotep"):
+    
+    # Check against config skip_authors (with fallback for older configs)
+    local_config_path = os.path.join(os.path.dirname(__file__), "..", "config", "repos.local.json")
+    if os.path.exists(local_config_path):
+        with open(local_config_path) as f:
+            try:
+                local_cfg = json.load(f)
+                skip_list = local_cfg.get("skip_authors", ["bubothewise"])
+            except (json.JSONDecodeError, KeyError):
+                skip_list = ["bubothewise"]
+    else:
+        # Fallback to public default for configs without skip_authors
+        skip_list = ["bubothewise"]
+    
+    if author.lower() in skip_list:
         return 0, "own comment"
 
     body = comment.get("body", "").strip()

@@ -2,7 +2,7 @@
 name: pr-comment-monitor
 description: 'Monitor open third-party PRs for comments needing professional replies from BuboTheWise.'
 version: 0.1.0
-author: nyarlathotep
+author: BuboTheWise
 license: MIT
 platforms: [linux, macos, windows]
 metadata:
@@ -73,7 +73,7 @@ See **Scan Algorithm** below for detailed design. Key behaviors:
 | `/cc @BuboTheWise` mentions | Immediate → actionable | Direct mention |
 
 **Skip (non-actionable):**
-- Our own comments (`bubothewise`, `nyarlathotep`)
+- Our own accounts (see `skip_authors` in config)
 - Empty body text
 - Stale comments (>14 days, configurable via `--since-days`)
 - Pure nits (`nit:`, `typo`, `formatting issue`)
@@ -123,7 +123,7 @@ schedule: "0 4 * * *"
 timezone: America/Los_Angeles
 skills: [pr-comment-monitor, github]
 prompt: |
-  Run the PR comment monitor skill. Execute: python3 ~/.hermes/profiles/nyarlathotep/skills/pr-comment-monitor/scripts/pr_monitor.py
+  Run the PR comment monitor skill. Execute: python3 stable/pr-comment-monitor/scripts/pr_monitor.py --generate-drafts
   
   Report findings: actionable comments across monitored repos with drafted replies. If no items need response, report "No comments needing response." Report any errors (API rate limits, auth issues) prominently.
 ```
