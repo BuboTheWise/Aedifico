@@ -64,7 +64,32 @@ The following templates are part of team-dev-process:
 
 See [`templates/card-chain-bodies.md`](templates/card-chain-bodies.md) for pre-authored card body templates that encode the atomicity test, four elements (Objective, Success Criteria, Required Testing, Verification Steps), and spec-first gate. Use these templates to author new cards without reinventing the pattern each time. The templates embody the team's collective knowledge of what makes a good atomic card on this project.
 
-## Pitfalls
+## Installable Application Lifecycle
+
+Project applications fall into two categories:
+
+- **Installable apps:** built, packaged, or pip-installable from GitHub (e.g. MemChorus). These are tested by installing the latest release — never from a local dev tree.
+- **Non-installable / local-only apps:** source-pulled and run in-place, typically for OPSEC (Aletheia). The install-from-GitHub loop does not apply.
+
+### Required cycle for every installable app
+
+1. **Start with a fresh install from GitHub.** Never install the local dev tree for verification — `pip install git+https://...` or equivalent. Local trees hide packaging/distribution bugs by design.
+2. **Test naturally.** Run it as the user would: launch, exercise real workflows, look for gaps and bugs. Do not just smoke-test.
+3. **Fix every bug found.** File issues as normal BUT also fix each one in the same dev cycle. "Issue filed" is NOT a deliverable state for installed software.
+4. **Push fixes → reinstall fresh from GitHub → test again.** This is mandatory QA evidence. If the original fix fails under real-world install conditions, that is a QA failure and you continue until it passes.
+5. **Repeat steps 1–4 until verified working across all target profiles/environments.** The loop only ends when a freshly-installed-from-GitHub version is tested and confirmed functional end-to-end.
+
+### Special case: MemChorus (critical infrastructure)
+
+MemChorus is foundational to every other workflow. Its development gets highest priority:
+
+- **Every bug found during testing triggers the full install-test-fix loop.** No shortcuts, no partial fixes that are "filed as an issue but not tested end-to-end."
+- Verify functional on all profiles where it runs — each profile is a separate test environment. A fix that works on one profile but not another is NOT done.
+- After every round of changes: merge → push → reinstall fresh from GitHub on EVERY profile → verify functionality → document any remaining known gaps as issues with clear priority for next cycle.
+
+### Non-installable exception: Aletheia
+
+Aletheia is private, OPSEC-sensitive software developed and run locally only. The install-from-GitHub loop does not apply — it is tested by running `aletheia` directly in the working tree after changes are made.
 
 - **Verify state on disk, not in chat.** After any DM / stop / hold order to a bot agent, confirm with `git status` + file mtime before reporting state. A queued ack is not execution; an in-flight turn continues past a stop order.
 - **Symlink is not a hardlink.** Before claiming "synced to all profiles," check the inode of EVERY profile path. Same file reached by two symlinks is one file; a different inode is a different file that changes did not reach. Check all cases before concluding.
