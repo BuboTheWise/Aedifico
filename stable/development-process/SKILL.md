@@ -1,7 +1,7 @@
 ---
 name: development-process
 description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
-version: 0.2.6
+version: 0.2.7
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -32,6 +32,21 @@ build; this standard wins for *how* to build it.
 1. Development code and skills live in a git repository. Never in the knowledge vault.
 2. Documentation, requirements, decisions, and research live in the vault or project docs. Never inside a source tree.
 3. Work in a clone. Never edit a live application tree in place.
+
+## Hermes Install Source Protection (hard rule)
+
+The live installed Hermes source tree **must** remain at the path reported by `hermes --version` (currently `~/.hermes/hermes-agent`).
+
+- `~/Projects/hermes-agent` (or any other clone) is a **separate** development/working copy. The two locations are never interchangeable.
+- No profile or agent may:
+  - Move, rename, delete, or `mv` any content between `~/.hermes/hermes-agent` and another location.
+  - Run git, pnpm, `hermes pm`, build, or source-modifying commands inside the live `~/.hermes/hermes-agent` tree unless the explicit, documented goal is repairing the *installed* Hermes (and only after first running `hermes --version` and confirming the Install directory).
+  - Treat the live install dir as a development workspace.
+- All Hermes-agent development work must occur exclusively in a separate clone (e.g. `~/Projects/hermes-agent`).
+- Before any terminal/git/build work that touches a Hermes source tree, every agent **must** run `hermes --version` and record the reported "Install directory".
+- Violation of this rule has already caused multiple full Hermes install breakages (stale launchers, "No such file or directory", frontend/pm failures, agents disappearing).
+
+This rule is enforceable. Any card or action that would touch the live source without the above verification is out of scope.
 
 ## The Board
 
@@ -199,4 +214,4 @@ No rule in this standard requires a second agent to be present:
 
 ---
 
-*v0.2.6 — OPSEC history purge: a resolved OPSEC/PII leak is scrubbed at HEAD and purged from all history (git filter-repo: dry-run, bundle backup, apply, force-push), verified zero on origin and across all history, with the leak + resolution recorded for audit (Toolbox #22). v0.2.5 — Clean-tree gate (done gated on `git status --porcelain` clean + named artifacts in commit, Toolbox #11); canonical interpreter named and pinned in QA (Toolbox #12); bot-to-bot per-exchange cap + kanban-card fallback (Toolbox #14). v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
+*v0.2.7 — Hermes Install Source Protection (hard rule): live source at path reported by `hermes --version` (e.g. `~/.hermes/hermes-agent`) must never be moved, edited, or operated on as a dev tree; all Hermes-agent work must use a separate clone (e.g. `~/Projects/hermes-agent`); every agent must run `hermes --version` and record the Install directory before touching any Hermes source tree. Added after repeated install breakages from profile confusion between live install and dev clone. v0.2.6 — OPSEC history purge: a resolved OPSEC/PII leak is scrubbed at HEAD and purged from all history (git filter-repo: dry-run, bundle backup, apply, force-push), verified zero on origin and across all history, with the leak + resolution recorded for audit (Toolbox #22). v0.2.5 — Clean-tree gate (done gated on `git status --porcelain` clean + named artifacts in commit, Toolbox #11); canonical interpreter named and pinned in QA (Toolbox #12); bot-to-bot per-exchange cap + kanban-card fallback (Toolbox #14). v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
