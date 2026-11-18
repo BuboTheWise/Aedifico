@@ -1,7 +1,7 @@
 ---
 name: development-process
 description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
-version: 0.2.3
+version: 0.2.6
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -50,7 +50,7 @@ build; this standard wins for *how* to build it.
 
 **Atomicity test (checkable):** a card is atomic only if the **weakest model on the team** can complete it verbatim from its four elements — Objective, Success Criteria, Required Testing, Verification Steps — with **zero unstated context or judgment calls**. If it needs a tradeoff decision, it is not atomic: split it, or write the decision explicitly into the card. Test phrasing: "could the smallest model do this card from the text alone?"
 
-**Spec-first gate:** any new feature or behavior change starts as a `spec:` card that merges before dev. Dev cards cite their spec card. "Read the current specs" is one step short of "specs updated and merged before dev starts" — the latter is the gate.
+**Spec-first gate:** any new feature or behavior change starts as a `spec:` card that merges before dev. Dev cards cite their spec card. See [team-dev-process](../../team-dev-process/SKILL.md) for atomic card workflow, collaboration patterns, and QA gates. "Read the current specs" is one step short of "specs updated and merged before dev starts" — the latter is the gate.
 
 **Stop-and-report:** an unexpected outcome, or a fix outside the card's named scope → STOP. Report it as a finding on the card. The fix becomes a NEW card (`FIX` or sometimes `spec:`) — it is never a side quest inside the current card.
 
@@ -168,4 +168,4 @@ No rule in this standard requires a second agent to be present:
 
 ---
 
-*v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
+*v0.2.6 — OPSEC history purge: a resolved OPSEC/PII leak is scrubbed at HEAD and purged from all history (git filter-repo: dry-run, bundle backup, apply, force-push), verified zero on origin and across all history, with the leak + resolution recorded for audit (Toolbox #22). v0.2.5 — Clean-tree gate (done gated on `git status --porcelain` clean + named artifacts in commit, Toolbox #11); canonical interpreter named and pinned in QA (Toolbox #12); bot-to-bot per-exchange cap + kanban-card fallback (Toolbox #14). v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
