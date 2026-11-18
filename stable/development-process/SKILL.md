@@ -64,6 +64,24 @@ build; this standard wins for *how* to build it.
 - "Done" requires pasted real output covering the claimed scope — a full test suite green where the project defines one. A single test on a non-deterministic model is a finding, not a verdict.
 - Reviews cite specific files/lines — no one-line "looks good" approvals.
 
+## Executed-QA gate (v0.2.4)
+
+A QA verdict on a change to **executable code** is not complete without at least one **executed check** of the changed code path. "Executed" is mechanical — one of these three admissible forms:
+
+1. **Run the changed line.** The code path containing the change actually runs in the target environment (the interpreter/runtime the code ships on) — not re-reading the diff in your head.
+2. **Invoke the API.** The function/method/endpoint the change touches is called with inputs that reach the changed behavior.
+3. **A test exercises the path.** A test runs the changed path, asserts on its output, and would have FAILED against the pre-fix code.
+
+A diff re-read (grep, regex, prose) is a **review**, not a QA verdict, and cannot stand alone as QA evidence for executable code.
+
+**Canonical interpreter (v0.2.5).** Runtime drift is invisible to static QA: the same stdlib call can be valid on one interpreter and crash on another (the F8 anchor below is exactly this failure mode). The interpreter is therefore named and pinned. (a) The project spec names the canonical interpreter — implementation and version — that the build and QA battery run under. (b) The QA card records the interpreter version (`python --version`, or the equivalent for the runtime) and a smoke of any changed stdlib or library call under that exact interpreter. (c) Where the project uses a dependency manifest, the pin (`requirements` or equivalent) is committed with the change. A verdict produced under a different interpreter than the canonical one is a finding, not a verdict.
+
+**What the verdict records.** The verdict pastes the executed check: the exact command (or the named test run) plus an output excerpt showing the changed path actually ran. A verdict whose evidence is diff-reading alone is incomplete — even if its prose says "verified."
+
+**Tier-agnostic.** This gate applies to every tier — no exemption. The QA tier rule above governs *who* may perform QA; this gate governs *what counts as a verdict*. The demonstrated failure mode (anchor below) is a property of static reading, not of the reader: a stronger model re-reading the same diff misses the same one-token typo. Execution is the only tier-independent substitute for judgment.
+
+**Anchor (why this gate exists).** Polygraph finding F8: `datetime.now().isoformat(timesep="seconds")` — a mistyped kwarg on a stdlib call — passed a diff-re-read QA round, then crashed at runtime when the battery executed the script on the canonical interpreter. Fix: commit `6549cb7` in the Polygraph repository ("F8 regression, battery crash … re-verify"), and the change was re-verified by executing the battery. Seven earlier findings were caught by reading; the eighth was one token and was only visible when the code ran.
+
 ## Solo Mode
 
 No rule in this standard requires a second agent to be present:
@@ -86,6 +104,7 @@ No rule in this standard requires a second agent to be present:
 ## Quality Gates (hard)
 
 - No uncommitted work at the end of a session. No exceptions.
+- **Clean-tree gate (v0.2.5).** A card is not done with an unclean tree, and a file that exists only on disk is not done. Before a card closes: (a) `git status --porcelain` must return empty — no modified, staged, or untracked files; (b) every artifact named on the card must appear in `git show --stat <sha>` of the card's landing commit (its merge commit, or the open PR's head commit if parked). Paste both commands' output on the card — both must be clean / present.
 - No "done" without a real, executed verification. Paste the actual output.
 - No fabricated results. A blocker reported honestly beats an invented success.
 - Cite before claim. Every factual assertion ties to a tool output or a document.
@@ -98,6 +117,7 @@ No rule in this standard requires a second agent to be present:
 ## Git Discipline
 
 ### Branching Conventions
+
 - **Base branches:** `main` (default) or `develop` if the team uses it.
 - **Feature branches:** `feature/<task-name>` e.g. `feature/agent-orchestration`.
 - **Fix branches:** `fix/<issue-id>-<short-desc>` e.g. `fix/gh-42-login-timeout`.
@@ -105,26 +125,32 @@ No rule in this standard requires a second agent to be present:
 - Delete feature branch after merge — never before review.
 
 ### Commit Discipline
+
 - Commit format: `feat:`, `fix:`, `test:`, `docs:` followed by a short description.
 - One concern per commit. Push immediately after a green build.
 - **Git-first rule:** Every meaningful change is committed at the end of its discrete step. No "I'll commit everything at the end."
 
 ### Branch Hygiene
+
 - No uncommitted working-tree changes at end of a session.
 - No local branch that exists in no issue or PR.
 - Every card's final state is merge-or-park (see Quality Gates).
 
 ### OPSEC (public surface)
+
 - **The team identity is the only identity on any public surface.** Commits, PRs, issues, comments, skill text, and README carry the repository owner account only — no personal names, no local usernames, no machine hostnames, no internal hostnames, no absolute home paths.
 - **Assume public.** Anything that lands in the repository, a PR, an issue, or a shared skill file is public. Redact personal names, paths, and internal references before it ships.
 - **Never a personal GitHub identity on a public repository.** All `gh` operations (push, PR, issue, comment) run as the designated team/repo operator account.
 - **Check before shipping:** grep the diff for personal names, home paths, and hostnames — they must be zero.
+- **OPSEC history purge (v0.2.6).** Scrubbing the working copy is not enough — a redacted secret is still readable in history and on the remote branch. When an OPSEC/PII leak is found in any tracked artifact: (a) scrub the content at HEAD first, per the substitution convention (personal profile or account name → role descriptor, absolute home path → portable reference); (b) purge it from all history with `git filter-repo` — dry-run first, then a `git bundle` backup, then apply — and force-push the rewritten branch (`git push --force`); (c) verify zero: a fresh grep of the leaked token must return nothing on `origin` or anywhere in history; (d) record the leak and its resolution in the task or PR for audit — which repository, the leaked token (or its shape), the commit range, and the exact `git filter-repo` command.
 
 ### Repository Operations
+
 - A **designated repository operator** performs `gh` CLI operations (push, PR creation, merge). Implementers provide patches or diffs for review first.
 - All GitHub interaction goes through the `gh` CLI (issue edit/comment, PR, push) — via shell or `subprocess` — not raw `curl`. One auth path, consistent output.
 
 ### Installation & Distribution
+
 - Profiles install shared skills and artifacts **from the canonical GitHub repository after merge to `main`** — never from a local dev clone, a working tree, or an unpushed branch.
 - **If a change is merged and pushed, the update path is a reinstall from the remote.** A local copy is never the source of truth handed to another profile.
 - A profile's working copy of a shared skill must match the remote `main`; verify by sha, not by "it looks right."
@@ -134,6 +160,7 @@ No rule in this standard requires a second agent to be present:
 - A handoff is durable: the artifact lands on disk in the target's workspace (file, memory entry, issue). Chat is the go-signal, not the handoff.
 - State-changing work needs a read-back of the exact target before claiming success — a passing tool call is not a verified effect.
 - Coordinate before two agents edit the same tree.
+- **Bot-to-bot cap (v0.2.5).** Bot-to-bot exchanges are capped by a small per-exchange message budget (observed: 4). When the budget is hit — or when a reply must outlive the exchange — route it as a kanban card (durable, auditable, board-visible) instead of continuing a long chat thread. Do not keep retrying in chat. Short DMs remain fine as go-signals.
 
 ## Pitfalls
 
@@ -153,12 +180,16 @@ No rule in this standard requires a second agent to be present:
 
 - [ ] All tests pass
 - [ ] No uncommitted working-tree changes remain
+- [ ] Clean-tree gate satisfied: `git status --porcelain` empty, and every artifact named on the card present in `git show --stat <sha>` of the landing commit; both outputs pasted on the card
 - [ ] Task board status updated ("review" or "done")
 - [ ] Documentation matches implementation
 - [ ] QA task completed as a separate task, in a fresh context, with pasted output
+- [ ] Executed-QA gate satisfied: the QA verdict pastes an executed check of the changed path — command (or test-run name) + output excerpt, and the check fails on the pre-fix code
+- [ ] Canonical interpreter named and pinned: QA records `python --version` (or equivalent) matching the project spec's named canonical interpreter, plus a smoke of any changed stdlib/library call under it
 - [ ] If the implementer is the weakest tier: QA was assigned to a higher tier (QA tier rule), or the learner holds a passing QA card in this domain
 - [ ] Code location verified per Rule One (dual-location: code in the git repo, docs in the vault)
 - [ ] Card state is merged-or-park: branch merged, or a named open PR tracking it
+- [ ] OPSEC history purge satisfied (only if this card resolved an OPSEC/PII leak): the leaked token is scrubbed at HEAD, purged from all history via `git filter-repo` (dry-run → backup → apply → force-push), a fresh grep of the token returns zero on origin and across all history, and the leak + resolution (repo, token, commit range, filter-repo command) is recorded on the card or PR
 
 ## Verification
 
