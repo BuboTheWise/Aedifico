@@ -1,7 +1,7 @@
 ---
 name: team-dev-process
 description: "Use for team dev tasks: atomic cards, spec-first, QA gate."
-version: 0.1.7
+version: 0.1.8
 author: BuboTheWise, Hermes Agent
 metadata:
   hermes:
@@ -32,6 +32,7 @@ Canonical process for development work across Hermes profiles (Cthugha, Bubo; Ny
 - States as labels: `ready → in-progress → qa → review → done`.
 - **Claim protocol:** a card enters `in-progress` only when an agent acks it (acknowledgment of understanding, before implementation). One owner at a time; named owner always.
 - Flow: creator writes the card → executor implements → creator (or partner) reviews → proof pasted → merge. This is what makes "load a bunch of work and collaborate independently" safe.
+- **Merge approval (autonomous):** a PR that has passed its QA gate — a higher-tier QA card returned an **APPROVED** verdict with the evidence pasted on the card — is **implicitly approved to merge**. The repo operator merges to main and deletes the branch; no further user sign-off. The process *is* the trust. A **QA RETURN continues the development cycle**: rework card → re-QA → re-merge — failed work goes back to dev, it never parks on a human approval. A parked open PR is for work that is deliberately incomplete, not work awaiting a signature. The one merge-adjacent operation that still needs an explicit user decision is a **force-push rewriting history** (presented with evidence + backup bundle, one decision per repo) — merging itself is not on that list.
 
 ## Card Discipline
 
