@@ -191,6 +191,21 @@ No rule in this standard requires a second agent to be present:
 - Session-specific language in shared documents ("as we discussed", "the current build") — only stable, canonical facts survive contact with other machines.
 - Rules that need prior context to make sense — every rule must be self-contained and verifiable from its own text.
 
+## Compute Availability & Offload Routing
+
+Operational routing rule (not a quality gate): when a dev agent's local inference engine is unavailable under project load, work routes to the next available tier without delay or reassignment friction — the strongest remaining tier keeps working, and offloading never demotes anyone.
+
+Triggers (any one):
+- Local inference offline (e.g., Ollama down, model not loaded)
+- Model load above threshold / queue saturated
+- Thermal or VRAM warning on the box
+- An explicit offload signal from the affected agent
+
+Routing:
+- Fallback chain: Primary -> Parallel-assist -> Coordination-escalation tier (next available).
+- Parallel-sharing semantics: when multiple agents are available, work is split across them (not queued one at a time); the strongest tier continues its own work and the offloaded unit goes to the next tier.
+- No reassignment friction: the affected agent keeps its in-flight work where possible; only the offloaded unit moves.
+
 ## Quality Checklist (Before Marking "Done")
 
 - [ ] All tests pass
@@ -204,7 +219,7 @@ No rule in this standard requires a second agent to be present:
 - [ ] The QA card body carries the routing log line (I, trigger, assignee Q, best-available where applicable); if stronger QA was required, the assignee is a different profile with the best in-scope executor record (or best available, stated)
 - [ ] Code location verified per Rule One (dual-location: code in the git repo, docs in the vault)
 - [ ] Card state is merged-or-park: branch merged, or a named open PR tracking it
-- [ ] OPSEC history purge satisfied (only if this card resolved an OPSEC/PII leak): the leaked token is scrubbed at HEAD, purged from all history via `git filter-repo` (dry-run → backup → apply → force-push), a fresh grep of the token returns zero on origin and across all history, and the leak + resolution (repo, token, commit range, filter-repo command) is recorded on the card or PR
+- [ ] OPSEC history purge satisfied (only if this card resolved an OPSEC/PII leak): the leaked token is scrubbed at HEAD, purged from all history via `git filter-repo` (dry-run → backup → apply → force-push), verified zero on origin and across all history, and the leak + resolution (repo, token, commit range, filter-repo command) is recorded on the card or PR
 
 ## Verification
 
@@ -214,4 +229,4 @@ No rule in this standard requires a second agent to be present:
 
 ---
 
-*v0.2.7 — Hermes Install Source Protection (hard rule): live source at path reported by `hermes --version` (e.g. `~/.hermes/hermes-agent`) must never be moved, edited, or operated on as a dev tree; all Hermes-agent work must use a separate clone (e.g. `~/Projects/hermes-agent`); every agent must run `hermes --version` and record the Install directory before touching any Hermes source tree. Added after repeated install breakages from profile confusion between live install and dev clone. v0.2.6 — OPSEC history purge: a resolved OPSEC/PII leak is scrubbed at HEAD and purged from all history (git filter-repo: dry-run, bundle backup, apply, force-push), verified zero on origin and across all history, with the leak + resolution recorded for audit (Toolbox #22). v0.2.5 — Clean-tree gate (done gated on `git status --porcelain` clean + named artifacts in commit, Toolbox #11); canonical interpreter named and pinned in QA (Toolbox #12); bot-to-bot per-exchange cap + kanban-card fallback (Toolbox #14). v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
+* v0.2.9 — Compute Availability & Offload Routing (Toolbox #25): operational routing rule for when a dev agent's local inference engine becomes unavailable under project load; work routes to the next available tier (Primary -> Parallel-assist -> Coordination-escalation) with parallel-sharing semantics and no reassignment friction, offloading never demotes anyone. v0.2.8 — evidence-based dynamic capability routing (Toolbox #30): promotion/demotion bidirectional, model-name prior-only, re-tuning via recency window + event-driven updates. v0.2.7 — Hermes Install Source Protection (hard rule): live source at path reported by `hermes --version` (e.g. `~/.hermes/hermes-agent`) must never be moved, edited, or operated on as a dev tree; all Hermes-agent work must use a separate clone (e.g. `~/Projects/hermes-agent`); every agent must run `hermes --version` and record the Install directory before touching any Hermes source tree. Added after repeated install breakages from profile confusion between live install and dev clone. v0.2.6 — OPSEC history purge: a resolved OPSEC/PII leak is scrubbed at HEAD and purged from all history (git filter-repo: dry-run, bundle backup, apply, force-push), verified zero on origin and across all history, with the leak + resolution recorded for audit (Toolbox #22). v0.2.5 — Clean-tree gate (done gated on `git status --porcelain` clean + named artifacts in commit, Toolbox #11); canonical interpreter named and pinned in QA (Toolbox #12); bot-to-bot per-exchange cap + kanban-card fallback (Toolbox #14). v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
