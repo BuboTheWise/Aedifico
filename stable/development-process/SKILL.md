@@ -1,7 +1,7 @@
 ---
 name: development-process
 description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
-version: 0.2.9
+version: 0.3.0
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -180,6 +180,37 @@ No rule in this standard requires a second agent to be present:
 - Coordinate before two agents edit the same tree.
 - **Bot-to-bot cap (v0.2.5).** Bot-to-bot exchanges are capped by a small per-exchange message budget (observed: 4). When the budget is hit — or when a reply must outlive the exchange — route it as a kanban card (durable, auditable, board-visible) instead of continuing a long chat thread. Do not keep retrying in chat. Short DMs remain fine as go-signals.
 
+### Discontinuing & handing off in-flight work
+
+When the user orders a stop-and-handoff ("discontinue dev work, hand off anything you need"), run this sequence — it is a task class, not a one-off:
+
+1. **Block, don't rework, any running card.** `kanban_block` it as `needs_input` (a discontinue is a pause pending the user, not a rework and not a completion). Do not start new dev on it.
+2. **Verify landing of in-flight and just-completed files before you hand off.** A completed stage whose files live only in the scratch workspace (`~/.hermes/kanban/workspaces/<id>/`) and are absent from both the local clone and origin is a **continuity risk for every downstream stage that depends on it** — they are lost when the scratch dir is pruned. Check with `git ls-files` (clone) and `gh api .../git/trees/main?recursive=1` (origin). If unlanded, name it in the handoff note and set "land to origin first" as the resume precondition.
+3. **Leave a full state note on the board** — `kanban_comment` on the card listing done / not-landed / running / queued and the exact resume step. The board comment is the durable handoff; it outlives any DM.
+4. **DM the orchestrator and the executor** (message_agent). If a target returns `runtime_unavailable` (profile authority not ready), it is safe to resend once up — the board comment already carries the handoff, so the bounce is not a failure.
+
+### Handoff feature — spec & requirements
+
+A **handoff** is taking one agent *out* of the team (drain, retire, pause, hand off) and later bringing it *back*, with zero work loss and a bounded, fast transition. The "Discontinuing & handing off in-flight work" sequence above is the *procedural half*; this is the *feature spec* — what the handoff capability must guarantee, with checkable acceptance criteria. This spec exists because the overnight gateway drain (`Gateway draining: restart_wait`) killed five running cards in one event, each crash-retrying to exhaustion; a defined handoff feature is what stops that from being the default. "Graceful but also as quickly as possible" is the design constraint: no work lost, and no unbounded per-card crash-retry drain.
+
+**Requirements (the feature must guarantee):**
+
+- **H1 — Graceful drain, zero work loss.** When an agent is taken out, every in-flight card is checkpointed to durable state *before* the agent goes offline: the card is `blocked`/parked with a board comment stating done / not-landed / running / queued + the exact resume step. No card is ever left mid-flight without a durable handoff note. In-flight files are verified landed (to origin, or named as a resume precondition) — a scratch-only file is a continuity risk and must be named, not silently left.
+- **H2 — Bounded, batched transition (fast).** The handoff is a single-pass operation, not a per-card crash-retry loop. A departing agent's running work must be reassignable to another agent in one step. The dispatcher must not loop-crash a departing agent's workers (stuck "ready queue non-empty, 0 workers spawned" for N cycles). If the agent cannot be spawned (profile authority not ready / `runtime_unavailable`), the work parks with a note and resumes on re-entry — it does not crash-retry to exhaustion against a down agent.
+- **H3 — Durable state is the handoff; chat is the go-signal.** The board (card state + comment) is the single source of truth for resume. A handoff that is interrupted (e.g., by a gateway drain mid-handoff) must preserve the durable board note. DMs to the orchestrator/executor are go-signals that may bounce (`runtime_unavailable`) and are safe to resend — never the durable record.
+- **H4 — Fast, no-rework re-entry.** When an agent returns, its parked/ready cards re-dispatch from durable board state *without re-authoring*. Re-entry does not re-run QA on work that already passed, and does not re-author a card that already exists. The only preconditions are: the dispatcher can spawn the profile, and in-flight files that were not landed have been landed.
+- **H5 — Idempotent & crash-safe.** A handoff must be idempotent: running it twice, or being interrupted and resumed, must not double-execute, double-merge, or double-assign a card. A drain-kill parks the card (`blocked`), so re-dispatch cannot re-execute a card that partially completed.
+
+**Acceptance criteria (checkable):**
+
+- **AC1 — Zero mid-flight loss.** Given an agent with N running cards, a completed handoff leaves all N cards in durable state (blocked/parked with a handoff note, or reassigned to a live agent) with **zero** cards mid-flight without a note. *Test:* take an agent out with ≥1 card `running`; after handoff, no card is `running` on that agent and each has a board note.
+- **AC2 — Bounded transition.** The handoff completes in a bounded number of operations (single pass per card), not N×2 crash-retry cycles. *Test:* a handoff of N cards produces ≤ N park/reassign operations, and the dispatcher logs ≤ 1 "stuck" cycle for the departing profile.
+- **AC3 — No scratch-only orphan.** Every in-flight artifact is either landed to origin or named as a resume precondition in the board note. *Test:* for each in-flight file, it is either in the repo HEAD or listed as a resume precondition in the board note.
+- **AC4 — No-rework re-entry.** On re-entry, the agent's parked cards re-dispatch from durable board state with the **same card IDs** (no new cards authored) and scratch workspace files from before the handoff are still present. *Test:* re-enter a profile; its parked cards dispatch with unchanged IDs and prior scratch files exist.
+- **AC5 — Idempotent, no double-execution.** A removal → re-entry cycle produces **no** double-merge, double-execution, or double-assign of any card. *Test:* run a full out→in cycle on a card with a pending merge; exactly one merge lands.
+
+**Scope note.** This is a spec/requirement for a handoff *capability*. It may be satisfied by (a) the procedural sequence above plus dispatcher/park semantics, and/or (b) a first-class kanban/gateway feature (batched drain, park-on-spawn-failure, idempotent re-dispatch). Either path must satisfy H1–H5 and AC1–AC5.
+
 ## Pitfalls
 
 - Scope drift on small models — edits during a RUN card, or provider/config logic added while "fixing" a runtime issue. The card type IS the fence: if the card doesn't say `FIX`, there are no edits.
@@ -233,4 +264,5 @@ Routing:
 
 ---
 
+* v0.3.0 — restored the two handoff sections (Discontinuing & handing off in-flight work; Handoff feature — spec & requirements, H1–H5 + AC1–AC5) required by issue #27's promotion spec but dropped during implementation (conformance RETURN t_2932c11c); completes the #27 acceptance criterion.
 * v0.2.9 — Compute Availability & Offload Routing (Toolbox #25): operational routing rule for when a dev agent's local inference engine becomes unavailable under project load; work routes to the next available tier (Primary -> Parallel-assist -> Coordination-escalation) with parallel-sharing semantics and no reassignment friction, offloading never demotes anyone. v0.2.8 — evidence-based dynamic capability routing (Toolbox #30): promotion/demotion bidirectional, model-name prior-only, re-tuning via recency window + event-driven updates. v0.2.7 — Hermes Install Source Protection (hard rule): live source at path reported by `hermes --version` (e.g. `~/.hermes/hermes-agent`) must never be moved, edited, or operated on as a dev tree; all Hermes-agent work must use a separate clone (e.g. `~/Projects/hermes-agent`); every agent must run `hermes --version` and record the Install directory before touching any Hermes source tree. Added after repeated install breakages from profile confusion between live install and dev clone. v0.2.6 — OPSEC history purge: a resolved OPSEC/PII leak is scrubbed at HEAD and purged from all history (git filter-repo: dry-run, bundle backup, apply, force-push), verified zero on origin and across all history, with the leak + resolution recorded for audit (Toolbox #22). v0.2.5 — Clean-tree gate (done gated on `git status --porcelain` clean + named artifacts in commit, Toolbox #11); canonical interpreter named and pinned in QA (Toolbox #12); bot-to-bot per-exchange cap + kanban-card fallback (Toolbox #14). v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*
