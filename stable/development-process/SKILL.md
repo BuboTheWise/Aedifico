@@ -1,7 +1,7 @@
 ---
 name: development-process
 description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
-version: 0.2.8
+version: 0.2.9
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -73,9 +73,12 @@ This rule is enforceable. Any card or action that would touch the live source wi
 
 - QA, stress, and verification are always a **separate new task, run in a fresh context** — never concurrent with, and never rolled into, the development task.
 - The **same agent** that implemented may perform its own QA task. The requirement is *task* separation (a new context that has not seen the implementation), not *agent* separation.
-- **QA tier rule.** The team maintains a capability ranking (strongest → weakest). Conformance QA on a card implemented by the **weakest** tier must be assigned to a **higher** tier. Same-model QA (a separate fresh task) remains valid only when the implementer is not the weakest tier. Rationale (checked, not assumed): same-model re-reading by the weakest tier has a demonstrated blind spot — code paths present but unexercised under their failure condition (auth/key paths, fallback branches, timeout/budget walls that only fail when the real triggering condition is hit).
-- **Orchestrator duty:** when creating the QA card, set the assignee per the tier rule — do not default the QA card back to the implementer. A stronger-tier QA assignment works offline-of-whoever-implemented: the ranking lives in this standard, not in any one agent's context.
-- **Graduation:** a learner in the weakest tier may earn the right to self-QA in a given domain when they pass a separate discrete QA card on a subsequent real task in that domain (evidence on the board, not acknowledgment). Until then, the tier rule stands.
+
+> ## Evidence-Based Dynamic Capability Routing (QA tier rule / Orchestrator duty) (v0.2.8, issue #30)
+>
+> **Capability routing is a function of board evidence only.** The QA card records the signal: task id, profile, status, attempts, result, handoff — nothing else. Model name appears in inputs only as an expectation note when a model override was set at card creation (it does not drive routing). Routing never stores a tier or rank anywhere; it is computed on-the-fly from the recency-weighted evidence window (N = 5, default) plus immediate event-driven updates. A promotion record raises that board entry in future comparisons; a demotion record lowers it. Both are recorded once and consumed by the same function — neither requires consent for their effect. Where **no** prior record exists (cold start), negotiation remains free to establish initial alignment but never decides alone; that absence is what invites dialogue, not prohibition. When the evidence basis is shared, the board-history record serves both: mentorship uses it to inform whether a learner qualifies for a lesson, development-process uses it to compute routing eligibility; one record feeds two purposes with no duplication.
+>
+> The same **board-history** record that mentorship consumes — a per-(profile × scope) ledger of verdict tokens, scope tags (stage), and recency weights — is also how development-process computes routing eligibility. Mentorship reads this record to decide "is this learner ready for this lesson?", development-process reads it to decide "can this task go live under which profile?". The evidence is singular; the interpretation differs by audience but not by fact.
 - "Done" requires pasted real output covering the claimed scope — a full test suite green where the project defines one. A single test on a non-deterministic model is a finding, not a verdict.
 - Reviews cite specific files/lines — no one-line "looks good" approvals.
 
@@ -213,6 +216,7 @@ Routing:
 - [ ] Clean-tree gate satisfied: `git status --porcelain` empty, and every artifact named on the card present in `git show --stat <sha>` of the landing commit; both outputs pasted on the card
 - [ ] Task board status updated ("review" or "done")
 - [ ] Documentation matches implementation
+- [ ] The QA card body carries the routing log line (I, trigger, assignee Q, best-available where applicable); if stronger QA was required, the assignee is a different profile with the best in-scope executor record (or best available, stated)
 - [ ] QA task completed as a separate task, in a fresh context, with pasted output
 - [ ] Executed-QA gate satisfied: the QA verdict pastes an executed check of the changed path — command (or test-run name) + output excerpt, and the check fails on the pre-fix code
 - [ ] Canonical interpreter named and pinned: QA records `python --version` (or equivalent) matching the project spec's named canonical interpreter, plus a smoke of any changed stdlib/library call under it
