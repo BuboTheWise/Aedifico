@@ -1,0 +1,23 @@
+[dev] Land issue #30: evidence-based dynamic capability routing (v0.2.8 + v1.2)
+
+- `stable/development-process/SKILL.md`:
+  - Version bumped to **0.2.8**
+  - Replace three QA bullets with the evidence-based routing blockquote
+  - Replace Quality checklist line with routing log line requirement  
+  - Append changelog entry for v0.2.8
+
+- `stable/mentorship/SKILL.md`:
+  - Version bumped to **1.2**
+  - Insert new bullet after "**Stronger is negotiated, never assumed.**"
+  - Append changelog entry for v1.2
+
+## QA verification
+
+Verified against spec-30-evidence-based-routing.md §5:
+- Evidence signal checkable from board records
+- Routing is a pure function with no stored tier
+- Promotion AND demotion both defined + same record
+- Model name as prior only (expectation note)
+- Re-tuning loop mechanism present
+- No stored tier field in routing rule
+- Versioning correctly reflects repo state

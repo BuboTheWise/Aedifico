@@ -1,7 +1,7 @@
 ---
 name: development-process
 description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
-version: 0.2.7
+version: 0.2.8
 author: BuboTheWise, Hermes Agent
 license: MIT
 platforms: [linux, macos, windows]
@@ -201,7 +201,7 @@ No rule in this standard requires a second agent to be present:
 - [ ] QA task completed as a separate task, in a fresh context, with pasted output
 - [ ] Executed-QA gate satisfied: the QA verdict pastes an executed check of the changed path — command (or test-run name) + output excerpt, and the check fails on the pre-fix code
 - [ ] Canonical interpreter named and pinned: QA records `python --version` (or equivalent) matching the project spec's named canonical interpreter, plus a smoke of any changed stdlib/library call under it
-- [ ] If the implementer is the weakest tier: QA was assigned to a higher tier (QA tier rule), or the learner holds a passing QA card in this domain
+- [ ] The QA card body carries the routing log line (I, trigger, assignee Q, best-available where applicable); if stronger QA was required, the assignee is a different profile with the best in-scope executor record (or best available, stated)
 - [ ] Code location verified per Rule One (dual-location: code in the git repo, docs in the vault)
 - [ ] Card state is merged-or-park: branch merged, or a named open PR tracking it
 - [ ] OPSEC history purge satisfied (only if this card resolved an OPSEC/PII leak): the leaked token is scrubbed at HEAD, purged from all history via `git filter-repo` (dry-run → backup → apply → force-push), a fresh grep of the token returns zero on origin and across all history, and the leak + resolution (repo, token, commit range, filter-repo command) is recorded on the card or PR
