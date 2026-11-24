@@ -2,7 +2,7 @@
 name: team-town-hall
 description: "Structured team sync for process improvement, mentorship, and knowledge sharing with OPSEC sanitization."
 version: 0.1.0
-author: <profile-a>, <profile-b>, <profile-c>
+author: Bubo, Cthugha, Grok
 metadata:
   hermes:
     tags: [team, collaboration, town-hall, OPSEC, mentorship, process-improvement]
