@@ -1,0 +1,341 @@
+---
+name: development-process
+description: 'Atomic card workflow: spec-first, QA gates, git discipline, OPSEC, install-from-GitHub.'
+version: 0.4.0
+author: BuboTheWise, Hermes Agent
+license: MIT
+platforms: [linux, macos, windows]
+metadata:
+  hermes:
+    tags: [development, standards, workflow, quality, kanban]
+    related_skills:
+      - hermes-agent-skill-authoring
+      - requesting-code-review
+---
+
+# Development Standard (Team)
+
+Canonical development standard for team work across agents and projects. It
+applies equally — no project gets special paths or baked-in preferences. Every
+rule below must be followable verbatim by an agent with no local context.
+Where a project document says otherwise: the project spec wins for *what* to
+build; this standard wins for *how* to build it.
+
+## Installation / Update Mechanism (Mandatory)
+
+**The Toolbox repo (`~/Projects/Toolbox`) is the canonical source.** Every profile MUST keep its copy synced with it. This is enforced by version comparison + hash check — not trust, not convention.
+
+To update a profile's copy from the repo:
+```bash
+# 1. Copy the canonical file
+cp /home/stefan/Projects/Toolbox/stable/development-process/SKILL.md \
+   ~/.hermes/profiles/<PROFILE>/skills/development-process/SKILL.md
+
+# 2. Verify parity (hashes must match exactly)
+sha256sum /home/stefan/Projects/Toolbox/stable/development-process/SKILL.md \
+  ~/.hermes/profiles/<PROFILE>/skills/development-process/SKILL.md
+```
+
+**Before any dev work**, verify all team members' profiles have the same version as the repo:
+```bash
+for p in bubo cthugha grok nyarlathotep; do
+  sha256sum ~/.hermes/profiles/$p/skills/development-process/SKILL.md \
+            /home/stefan/Projects/Toolbox/stable/development-process/SKILL.md
+done
+```
+All hashes must match. If any differ, that profile is out of sync — update it before starting work. Using a stale skill means missing rules and inconsistent process enforcement across agents.
+
+## When to Use
+
+- Starting, executing, reviewing, or handing off any development task.
+- Drafting a task spec, commit, or PR.
+- Don't use for: pure research or documentation authoring.
+
+## Rule One: Dual-Location Structure
+
+1. Development code and skills live in a git repository. Never in the knowledge vault.
+2. Documentation, requirements, decisions, and research live in the vault or project docs. Never inside a source tree.
+3. Work in a clone. Never edit a live application tree in place.
+
+## Hermes Install Source Protection (hard rule)
+
+The live installed Hermes source tree **must** remain at the path reported by `hermes --version` (currently `~/.hermes/hermes-agent`).
+
+- `~/Projects/hermes-agent` (or any other clone) is a **separate** development/working copy. The two locations are never interchangeable.
+- No profile or agent may:
+  - Move, rename, delete, or `mv` any content between `~/.hermes/hermes-agent` and another location.
+  - Run git, pnpm, `hermes pm`, build, or source-modifying commands inside the live `~/.hermes/hermes-agent` tree unless the explicit, documented goal is repairing the *installed* Hermes (and only after first running `hermes --version` and confirming the Install directory).
+  - Treat the live install dir as a development workspace.
+- All Hermes-agent development work must occur exclusively in a separate clone (e.g. `~/Projects/hermes-agent`).
+- Before any terminal/git/build work that touches a Hermes source tree, every agent **must** run `hermes --version` and record the reported "Install directory".
+- Violation of this rule has already caused multiple full Hermes install breakages (stale launchers, "No such file or directory", frontend/pm failures, agents disappearing).
+
+This rule is enforceable. Any card or action that would touch the live source without the above verification is out of scope.
+
+## The Board
+
+- **GitHub Issues on the project repository is the board** (or an equivalent tracker). No second board surface: chat threads and notes drift out of sync. The board is the source of truth for *state*; the repository is the source of truth for *code*.
+- **Card states as labels:** `ready → in-progress → qa → review → done`.
+- **Claim protocol:** a card enters `in-progress` only when an executor is named on the card **and** acknowledges the card (acknowledgment of understanding, before implementation starts). One owner at a time; the owner is always visible on the card.
+- Work that is not on the board is invisible to routing, QA, and audit: if it is not a card, it does not count.
+
+## Card Discipline
+
+**Card types (stated on the card):**
+- `RUN` — execute existing code or commands and report findings (pass/fail/breakage). **No edits.**
+- `FIX` — named changes to named files, nothing else.
+- `spec:` — spec or requirements change; must merge on its own before any dev card it gates.
+- **Unclear = RUN.** The card type is the scope fence. A card without a type permits no edits.
+
+**Atomicity test (checkable):** a card is atomic only if the **weakest model on the team** can complete it verbatim from its four elements — Objective, Success Criteria, Required Testing, Verification Steps — with **zero unstated context or judgment calls**. If it needs a tradeoff decision, it is not atomic: split it, or write the decision explicitly into the card. Test phrasing: "could the smallest model do this card from the text alone?"
+
+**Mandatory decomposition (v0.4.0 — anchor: t_1042ac01 wing-orphan data loss).** If any card's scope encompasses **more than one independent phase** (detection + migration + prevention, spec + implementation + QA, analysis + fix + tests, or any A → B → C chain where B cannot start before A is done), the executor **MUST decompose it into atomic child cards BEFORE dispatching** — not just "prefer" or "consider" it. Every sub-phase that has its own deliverable, acceptance criteria, and verification becomes a standalone card with `parent` linking back to the umbrella. The umbrella remains `blocked` (or as-needed) until all children are complete; it is closed only when every child finishes. **Never dispatch a card that requires sequential phases as a single execution.** This rule is mandatory because:
+
+- A multi-phase card dispatched to one agent will likely stall or be abandoned if the agent goes offline mid-way, with no durable record of which phases were done vs. pending.
+- QA cannot validate partial completion — there is only one deliverable per card, so a phase that finishes is not verifiable until the whole umbrella closes.
+- The routing pipeline loses visibility into progress: children can be dispatched to different executors (specialists), parent state is opaque from the board alone.
+
+**Check before dispatch:** does this card need more than one independent deliverable? If yes → decompose, link children, leave parent blocked → do not dispatch until children exist and are routable.
+
+**Spec-first gate:** any new feature or behavior change starts as a `spec:` card that merges before dev. Dev cards cite their spec card. See [team-dev-process](../../team-dev-process/SKILL.md) for atomic card workflow, collaboration patterns, and QA gates. "Read the current specs" is one step short of "specs updated and merged before dev starts" — the latter is the gate.
+
+**Stop-and-report:** an unexpected outcome, or a fix outside the card's named scope → STOP. Report it as a finding on the card. The fix becomes a NEW card (`FIX` or sometimes `spec:`) — it is never a side quest inside the current card.
+
+## QA: A Separate Task
+
+- QA, stress, and verification are always a **separate new task, run in a fresh context** — never concurrent with, and never rolled into, the development task.
+- The **same agent** that implemented may perform its own QA task. The requirement is *task* separation (a new context that has not seen the implementation), not *agent* separation.
+
+> ## Evidence-Based Dynamic Capability Routing (QA tier rule / Orchestrator duty) (v0.2.8, issue #30)
+>
+> **Capability routing is a function of board evidence only.** The QA card records the signal: task id, profile, status, attempts, result, handoff — nothing else. Model name appears in inputs only as an expectation note when a model override was set at card creation (it does not drive routing). Routing never stores a tier or rank anywhere; it is computed on-the-fly from the recency-weighted evidence window (N = 5, default) plus immediate event-driven updates. A promotion record raises that board entry in future comparisons; a demotion record lowers it. Both are recorded once and consumed by the same function — neither requires consent for their effect. Where **no** prior record exists (cold start), negotiation remains free to establish initial alignment but never decides alone; that absence is what invites dialogue, not prohibition. When the evidence basis is shared, the board-history record serves both: mentorship uses it to inform whether a learner qualifies for a lesson, development-process uses it to compute routing eligibility; one record feeds two purposes with no duplication.
+>
+> The same **board-history** record that mentorship consumes — a per-(profile × scope) ledger of verdict tokens, scope tags (stage), and recency weights — is also how development-process computes routing eligibility. Mentorship reads this record to decide "is this learner ready for this lesson?", development-process reads it to decide "can this task go live under which profile?". The evidence is singular; the interpretation differs by audience but not by fact.
+- "Done" requires pasted real output covering the claimed scope — a full test suite green where the project defines one. A single test on a non-deterministic model is a finding, not a verdict.
+- Reviews cite specific files/lines — no one-line "looks good" approvals.
+
+## Executed-QA gate (v0.2.4)
+
+A QA verdict on a change to **executable code** is not complete without at least one **executed check** of the changed code path. "Executed" is mechanical — one of these three admissible forms:
+
+1. **Run the changed line.** The code path containing the change actually runs in the target environment (the interpreter/runtime the code ships on) — not re-reading the diff in your head.
+2. **Invoke the API.** The function/method/endpoint the change touches is called with inputs that reach the changed behavior.
+3. **A test exercises the path.** A test runs the changed path, asserts on its output, and would have FAILED against the pre-fix code.
+
+A diff re-read (grep, regex, prose) is a **review**, not a QA verdict, and cannot stand alone as QA evidence for executable code.
+
+**Canonical interpreter (v0.2.5).** Runtime drift is invisible to static QA: the same stdlib call can be valid on one interpreter and crash on another (the F8 anchor below is exactly this failure mode). The interpreter is therefore named and pinned. (a) The project spec names the canonical interpreter — implementation and version — that the build and QA battery run under. (b) The QA card records the interpreter version (`python --version`, or the equivalent for the runtime) and a smoke of any changed stdlib or library call under that exact interpreter. (c) Where the project uses a dependency manifest, the pin (`requirements` or equivalent) is committed with the change. A verdict produced under a different interpreter than the canonical one is a finding, not a verdict.
+
+**What the verdict records.** The verdict pastes the executed check: the exact command (or the named test run) plus an output excerpt showing the changed path actually ran. A verdict whose evidence is diff-reading alone is incomplete — even if its prose says "verified."
+
+**Tier-agnostic.** This gate applies to every tier — no exemption. The QA tier rule above governs *who* may perform QA; this gate governs *what counts as a verdict*. The demonstrated failure mode (anchor below) is a property of static reading, not of the reader: a stronger model re-reading the same diff misses the same one-token typo. Execution is the only tier-independent substitute for judgment.
+
+**Anchor (why this gate exists).** Polygraph finding F8: `datetime.now().isoformat(timesep="seconds")` — a mistyped kwarg on a stdlib call — passed a diff-re-read QA round, then crashed at runtime when the battery executed the script on the canonical interpreter. Fix: commit `6549cb7` in the Polygraph repository ("F8 regression, battery crash … re-verify"), and the change was re-verified by executing the battery. Seven earlier findings were caught by reading; the eighth was one token and was only visible when the code ran.
+
+## Solo Mode
+
+No rule in this standard requires a second agent to be present:
+
+- The board and the repository are the record. "Done" is defined by evidence on the board, not by who says it.
+- The fences (card type, atomicity test, stop-and-report) are **load-bearing in solo mode**, not advisory — they are the only guardrails when no one is watching.
+- Evidence is mandatory, not optional: a card closes only with pasted real output covering the claimed scope.
+- A solo agent must be able to claim, implement, QA, and merge a card end-to-end without contacting any other agent.
+
+## Workflow Phases
+
+**Phase 0 — Preparation.** Read the current specs. Verify git state and versions. Confirm the card's four elements: Objective, Success Criteria, Required Testing, Verification Steps. Acknowledge the card before implementation starts. Completion: scope confirmed on the card.
+
+**Phase 1 — Implement.** Implement only the card's named scope. Write tests for new code before calling it done. Build must pass. Commit and push immediately after a green build. Completion: tests green, code pushed.
+
+**Phase 2 — Close.** Documentation current. Board state updated. Repository clean and pushed. Session lessons filed to memory. Completion: zero uncommitted work.
+
+**Phase 3 — Improve.** After each session, identify 1–3 concrete improvements. A gap that recurs twice becomes a permanent rule here. Completion: the rule is written and versioned.
+
+## Quality Gates (hard)
+
+- No uncommitted work at the end of a session. No exceptions.
+- **Clean-tree gate (v0.2.5).** A card is not done with an unclean tree, and a file that exists only on disk is not done. Before a card closes: (a) `git status --porcelain` must return empty — no modified, staged, or untracked files; (b) every artifact named on the card must appear in `git show --stat <sha>` of the card's landing commit (its merge commit, or the open PR's head commit if parked). Paste both commands' output on the card — both must be clean / present.
+- No "done" without a real, executed verification. Paste the actual output.
+- No fabricated results. A blocker reported honestly beats an invented success.
+- Cite before claim. Every factual assertion ties to a tool output or a document.
+- Errors are data. Deviations are disclosed immediately and fed back into process.
+- Artifacts outrank prose. A claim is only as real as the file, command, or URL behind it.
+- QA, stress testing, and verification are separate tasks — never rolled into implementation.
+- Every rule and claim carries its own checkable verification, doable from the text alone.
+- A card ends in exactly one of: **merged to main**, or **parked as a named, tracked open PR**. No orphaned local branches that exist in no card or PR.
+
+## Git Discipline
+
+### Branching Conventions
+
+- **Base branches:** `main` (default) or `develop` if the team uses it.
+- **Feature branches:** `feature/<task-name>` e.g. `feature/agent-orchestration`.
+- **Fix branches:** `fix/<issue-id>-<short-desc>` e.g. `fix/gh-42-login-timeout`.
+- Naming: lowercase, hyphens (no underscores or CamelCase).
+- Delete feature branch after merge — never before review.
+
+### Commit Discipline
+
+- Commit format: `feat:`, `fix:`, `test:`, `docs:` followed by a short description.
+- One concern per commit. Push immediately after a green build.
+- **Git-first rule:** Every meaningful change is committed at the end of its discrete step. No "I'll commit everything at the end."
+
+### Branch Hygiene
+
+- No uncommitted working-tree changes at end of a session.
+- No local branch that exists in no issue or PR.
+- Every card's final state is merge-or-park (see Quality Gates).
+
+### OPSEC (public surface)
+
+- **The team identity is the only identity on any public surface.** Commits, PRs, issues, comments, skill text, and README carry the repository owner account only — no personal names, no local usernames, no machine hostnames, no internal hostnames, no absolute home paths.
+- **Assume public.** Anything that lands in the repository, a PR, an issue, or a shared skill file is public. Redact personal names, paths, and internal references before it ships.
+- **Never a personal GitHub identity on a public repository.** All `gh` operations (push, PR, issue, comment) run as the designated team/repo operator account.
+- **Check before shipping:** grep the diff for personal names, home paths, and hostnames — they must be zero.
+- **OPSEC history purge (v0.2.6).** Scrubbing the working copy is not enough — a redacted secret is still readable in history and on the remote branch. When an OPSEC/PII leak is found in any tracked artifact: (a) scrub the content at HEAD first, per the substitution convention (personal profile or account name → role descriptor, absolute home path → portable reference); (b) purge it from all history with `git filter-repo` — dry-run first, then a `git bundle` backup, then apply — and force-push the rewritten branch (`git push --force`); (c) verify zero: a fresh grep of the leaked token must return nothing on `origin` or anywhere in history — and for identity leaks (author name/email), the sweep must cover **all ref surfaces**: every branch, every tag, and the full author list (`git log --all --format='%an <%ae>' | sort -u` must show exactly the team identity) — a scrubbed message body can still carry a leaked identity in an author line, and every tag carries its own author line; (d) record the leak and its resolution in the task or PR for audit — which repository, the leaked token (or its shape), the commit range, and the exact `git filter-repo` command.
+
+### Repository Operations
+
+- Push, PR creation, and merge are routine autonomous operations under the escalation test in **Human Gates and Autonomy** — executed by the working agent once the clean-tree and executed-QA gates are recorded on the card. The OPSEC rule stands: all `gh` operations run as the team account, never a personal identity.
+- All GitHub interaction goes through the `gh` CLI (issue edit/comment, PR, push) — via shell or `subprocess` — not raw `curl`. One auth path, consistent output.
+
+### Installation & Distribution
+
+- Profiles install shared skills and artifacts **from the canonical GitHub repository after merge to `main`** — never from a local dev clone, a working tree, or an unpushed branch.
+- **If a change is merged and pushed, the update path is a reinstall from the remote.** A local copy is never the source of truth handed to another profile.
+- A profile's working copy of a shared skill must match the remote `main`; verify by sha, not by "it looks right."
+- **Multi-profile install verification (v0.3.2).** When a "install a shared artifact (skill / config / cron) on N profiles" card completes, verify ALL of the following before PASS — a green sha on `SKILL.md` alone is not a complete install verification:
+  1. Per profile, every installed file's sha256 matches `git show <merge_sha>:<repo_path>` (byte-identical, per file, per profile).
+  2. Enumerate the full artifact tree in the repo at that SHA (`git ls-tree -r <sha> --name-only | grep <name>`) and confirm every shipped file (config, scripts, cron/auxiliary) exists in the repo. The installed tree may be a **strict subset** of the repo tree — acceptable only if the live behavior runs from a repo workdir, not from the installed skill dir.
+  3. Find where the live job actually runs (read the scheduled job's command + working dir from `~/.hermes/profiles/<p>/cron/jobs.json`) and verify its config **at that workdir's HEAD**. The install SHA can be older than the workdir HEAD if the artifact was updated after the install snapshot — config drift between the install snapshot and HEAD is real, so check HEAD, not only the install SHA.
+  4. For any scheduled job: confirm it exists, is `enabled: true`, and the last run's status is ok.
+  5. Confirm the artifact actually loads in the live session (present in the available-skills list / session context).
+
+## Handoff and Collaboration
+
+- A handoff is durable: the artifact lands on disk in the target's workspace (file, memory entry, issue). Chat is the go-signal, not the handoff.
+- State-changing work needs a read-back of the exact target before claiming success — a passing tool call is not a verified effect.
+- Coordinate before two agents edit the same tree.
+- **Bot-to-bot cap (v0.2.5).** Bot-to-bot exchanges are capped by a small per-exchange message budget (observed: 4). When the budget is hit — or when a reply must outlive the exchange — route it as a kanban card (durable, auditable, board-visible) instead of continuing a long chat thread. Do not keep retrying in chat. Short DMs remain fine as go-signals.
+
+### Discontinuing & handing off in-flight work
+
+When the user orders a stop-and-handoff ("discontinue dev work, hand off anything you need"), run this sequence — it is a task class, not a one-off:
+
+1. **Block, don't rework, any running card.** `kanban_block` it as `needs_input` (a discontinue is a pause pending the user, not a rework and not a completion). Do not start new dev on it.
+2. **Verify landing of in-flight and just-completed files before you hand off.** A completed stage whose files live only in the scratch workspace (`~/.hermes/kanban/workspaces/<id>/`) and are absent from both the local clone and origin is a **continuity risk for every downstream stage that depends on it** — they are lost when the scratch dir is pruned. Check with `git ls-files` (clone) and `gh api .../git/trees/main?recursive=1` (origin). If unlanded, name it in the handoff note and set "land to origin first" as the resume precondition.
+3. **Leave a full state note on the board** — `kanban_comment` on the card listing done / not-landed / running / queued and the exact resume step. The board comment is the durable handoff; it outlives any DM.
+4. **DM the orchestrator and the executor** (message_agent). If a target returns `runtime_unavailable` (profile authority not ready), it is safe to resend once up — the board comment already carries the handoff, so the bounce is not a failure.
+
+### Handoff feature — spec & requirements
+
+A **handoff** is taking one agent *out* of the team (drain, retire, pause, hand off) and later bringing it *back*, with zero work loss and a bounded, fast transition. The "Discontinuing & handing off in-flight work" sequence above is the *procedural half*; this is the *feature spec* — what the handoff capability must guarantee, with checkable acceptance criteria. This spec exists because the overnight gateway drain (`Gateway draining: restart_wait`) killed five running cards in one event, each crash-retrying to exhaustion; a defined handoff feature is what stops that from being the default. "Graceful but also as quickly as possible" is the design constraint: no work lost, and no unbounded per-card crash-retry drain.
+
+**Requirements (the feature must guarantee):**
+
+- **H1 — Graceful drain, zero work loss.** When an agent is taken out, every in-flight card is checkpointed to durable state *before* the agent goes offline: the card is `blocked`/parked with a board comment stating done / not-landed / running / queued + the exact resume step. No card is ever left mid-flight without a durable handoff note. In-flight files are verified landed (to origin, or named as a resume precondition) — a scratch-only file is a continuity risk and must be named, not silently left.
+- **H2 — Bounded, batched transition (fast).** The handoff is a single-pass operation, not a per-card crash-retry loop. A departing agent's running work must be reassignable to another agent in one step. The dispatcher must not loop-crash a departing agent's workers (stuck "ready queue non-empty, 0 workers spawned" for N cycles). If the agent cannot be spawned (profile authority not ready / `runtime_unavailable`), the work parks with a note and resumes on re-entry — it does not crash-retry to exhaustion against a down agent.
+- **H3 — Durable state is the handoff; chat is the go-signal.** The board (card state + comment) is the single source of truth for resume. A handoff that is interrupted (e.g., by a gateway drain mid-handoff) must preserve the durable board note. DMs to the orchestrator/executor are go-signals that may bounce (`runtime_unavailable`) and are safe to resend — never the durable record.
+- **H4 — Fast, no-rework re-entry.** When an agent returns, its parked/ready cards re-dispatch from durable board state *without re-authoring*. Re-entry does not re-run QA on work that already passed, and does not re-author a card that already exists. The only preconditions are: the dispatcher can spawn the profile, and in-flight files that were not landed have been landed.
+- **H5 — Idempotent & crash-safe.** A handoff must be idempotent: running it twice, or being interrupted and resumed, must not double-execute, double-merge, or double-assign a card. A drain-kill parks the card (`blocked`), so re-dispatch cannot re-execute a card that partially completed.
+
+**Acceptance criteria (checkable):**
+
+- **AC1 — Zero mid-flight loss.** Given an agent with N running cards, a completed handoff leaves all N cards in durable state (blocked/parked with a handoff note, or reassigned to a live agent) with **zero** cards mid-flight without a note. *Test:* take an agent out with ≥1 card `running`; after handoff, no card is `running` on that agent and each has a board note.
+- **AC2 — Bounded transition.** The handoff completes in a bounded number of operations (single pass per card), not N×2 crash-retry cycles. *Test:* a handoff of N cards produces ≤ N park/reassign operations, and the dispatcher logs ≤ 1 "stuck" cycle for the departing profile.
+- **AC3 — No scratch-only orphan.** Every in-flight artifact is either landed to origin or named as a resume precondition in the board note. *Test:* for each in-flight file, it is either in the repo HEAD or listed as a resume precondition in the board note.
+- **AC4 — No-rework re-entry.** On re-entry, the agent's parked cards re-dispatch from durable board state with the **same card IDs** (no new cards authored) and scratch workspace files from before the handoff are still present. *Test:* re-enter a profile; its parked cards dispatch with unchanged IDs and prior scratch files exist.
+- **AC5 — Idempotent, no double-execution.** A removal → re-entry cycle produces **no** double-merge, double-execution, or double-assign of any card. *Test:* run a full out→in cycle on a card with a pending merge; exactly one merge lands.
+
+**Scope note.** This is a spec/requirement for a handoff *capability*. It may be satisfied by (a) the procedural sequence above plus dispatcher/park semantics, and/or (b) a first-class kanban/gateway feature (batched drain, park-on-spawn-failure, idempotent re-dispatch). Either path must satisfy H1–H5 and AC1–AC5.
+
+## Pitfalls
+
+- Scope drift on small models — edits during a RUN card, or provider/config logic added while "fixing" a runtime issue. The card type IS the fence: if the card doesn't say `FIX`, there are no edits.
+- A queued acknowledgment is not execution — verify state on disk (`git status`, file mtimes) after any stop/hold order, not just in chat.
+- One test is not a battery — "🎉 PASSED" from a single test on a non-deterministic model is a finding, not a verdict. Scope of claim must match scope of evidence.
+- A rule that sounds nice but isn't actionable ("be careful") — replace with a checkable criterion or cut it.
+- Machine-local paths in shared documents — they break for everyone else.
+- Project-specific special cases inside a shared standard — put them in the project spec.
+- Verifying the tool call instead of the result.
+- Tool parameter discipline — `execute_code(code=...)` not `command=...`; use `terminal()` for shell commands. A wrong parameter name is a silent failure or crash — verify by reading returned output, not tool-call success.
+- Accumulating rules without pruning the wording they replace.
+- Session-specific language in shared documents ("as we discussed", "the current build") — only stable, canonical facts survive contact with other machines.
+- Rules that need prior context to make sense — every rule must be self-contained and verifiable from its own text.
+
+## Compute Availability & Offload Routing
+
+Operational routing rule (not a quality gate): when a dev agent's local inference engine is unavailable under project load, work routes to the next available tier without delay or reassignment friction — the strongest remaining tier keeps working, and offloading never demotes anyone.
+
+Triggers (any one):
+- Local inference offline (e.g., Ollama down, model not loaded)
+- Model load above threshold / queue saturated
+- Thermal or VRAM warning on the box
+- An explicit offload signal from the affected agent
+
+Routing:
+- Fallback chain: Primary -> Parallel-assist -> Coordination-escalation tier (next available).
+- Parallel-sharing semantics: when multiple agents are available, work is split across them (not queued one at a time); the strongest tier continues its own work and the offloaded unit goes to the next tier.
+- No reassignment friction: the affected agent keeps its in-flight work where possible; only the offloaded unit moves.
+
+## Human Gates and Autonomy (v0.3.1, Toolbox #32)
+
+**Default is autonomous.** Routine development operations — pushing, creating a PR, merging, and force-pushing when the evidence below holds — are performed by the working agent without awaiting a human. A human gate is the **exception**, and it may fire only on evidence about the *specific operation*, never on the name of the operation type. A blanket "op type X is human-gated" label is a **missing check, not a rule**: it stops autonomous work even when the operation is provably safe.
+
+**Escalation test.** A human gate fires on an operation only when **both** hold:
+
+1. **Irreversible** — the operation destroys state that cannot be restored without re-deriving work (remote branch history, a published release, a dropped commit).
+2. **Drops logical work or exceeds scope** — the operation would discard a unit of work with no surviving counterpart (a commit with no local counterpart), or it exceeds the card's stated acceptance/scope.
+
+If either leg fails, the operation is routine: execute it, record the evidence on the card, and move on. A gate is never justified by the command name alone. When a gate does fire, it is a **single decision presented with evidence** (the orphan list, the backup bundle, the scope quote) — not a repeated ping.
+
+**Worked example — force-push (the anchor case).** Before `git push --force` of a rewritten branch, run the superset check on the branch's messages:
+
+    git log origin/<branch> ^<branch> --format=%s | sort -u > /tmp/remote-only.txt
+    git log <branch> --format=%s | sort -u > /tmp/local-msgs.txt
+    comm -23 /tmp/remote-only.txt /tmp/local-msgs.txt
+
+- **`comm -23` empty** ⇒ every commit on the remote has a local counterpart with the same message; the push is a logical-superset rewrite that drops nothing ⇒ **no gate.** Push autonomously and paste the three command outputs on the card.
+- **`comm -23` non-empty** ⇒ those messages have no local counterpart; the push would discard logical work ⇒ **gate:** stop, report the orphan list, and proceed only on an explicit approval citing that list.
+- **Scope leg** — the force-push must be inside the card's named scope (e.g., an OPSEC purge named on the card). Out of scope ⇒ **gate**, regardless of the check result.
+
+*Anchor:* the VoidScanner PII-scrub (2026-11) — every origin commit had a local counterpart with an identical message (1856b4e↔cc4b4fe, 35a2c16↔9c3c2e1, 7be8c0b↔f00caaa, d110a49↔1925cc8, 371787f↔9554505, 7d0a5c2↔575b815) plus one added local commit (f212519). Superset check empty ⇒ no gate. It was parked under a blanket "force-push = human-gated" label; that label is replaced by this test.
+
+**Generalization — every blanket "human-gated" label in the skill reduces to this test.**
+
+| Operation (blanket label today) | Safe evidence (autonomous) | Escalating evidence (gate) |
+|---|---|---|
+| push / PR / merge (Repository Operations: "designated repository operator") | clean-tree gate + executed-QA verdict on the card; change inside card scope | landing ref drops a commit whose message has no counterpart; or the merge exceeds card acceptance |
+| force-push / history rewrite (OPSEC purge v0.2.6; team-dev-process merge-approval line) | superset check empty; push inside card scope | superset check non-empty; or push outside card scope |
+| review state → done (The Board: `ready → in-progress → qa → review → done`) | QA verdict on the card with executed checks covering the acceptance criteria | no executed evidence for the changed path; or the change exceeds card scope |
+
+Mechanical rules (the "no exceptions" hard gates, the bot-to-bot cap, install-source protection) stay as written: they are evidence checks satisfied by the agent, not human approvals.
+
+**Unreducible-gate clause (STOP-and-report).** If an operation type cannot be reduced to the escalation test — i.e., no evidence can be named that would make it safe — do not park it under a blanket label: STOP, name the gate and the reason it is not reducible on the card, and route it as a spec card. A gate that cannot be justified by evidence is a missing rule, and the standard names it as such rather than deferring to judgment.
+
+## Quality Checklist (Before Marking "Done")
+
+- [ ] All tests pass
+- [ ] No uncommitted working-tree changes remain
+- [ ] Clean-tree gate satisfied: `git status --porcelain` empty, and every artifact named on the card present in `git show --stat <sha>` of the landing commit; both outputs pasted on the card
+- [ ] Task board status updated ("review" or "done")
+- [ ] Documentation matches implementation
+- [ ] The QA card body carries the routing log line (I, trigger, assignee Q, best-available where applicable); if stronger QA was required, the assignee is a different profile with the best in-scope executor record (or best available, stated)
+- [ ] QA task completed as a separate task, in a fresh context, with pasted output
+- [ ] Executed-QA gate satisfied: the QA verdict pastes an executed check of the changed path — command (or test-run name) + output excerpt, and the check fails on the pre-fix code
+- [ ] Canonical interpreter named and pinned: QA records `python --version` (or equivalent) matching the project spec's named canonical interpreter, plus a smoke of any changed stdlib/library call under it
+- [ ] The QA card body carries the routing log line (I, trigger, assignee Q, best-available where applicable); if stronger QA was required, the assignee is a different profile with the best in-scope executor record (or best available, stated)
+- [ ] Code location verified per Rule One (dual-location: code in the git repo, docs in the vault)
+- [ ] Card state is merged-or-park: branch merged, or a named open PR tracking it
+- [ ] OPSEC history purge satisfied (only if this card resolved an OPSEC/PII leak): the leaked token is scrubbed at HEAD, purged from all history via `git filter-repo` (dry-run → backup → apply → force-push), verified zero on origin and across all history, and the leak + resolution (repo, token, commit range, filter-repo command) is recorded on the card or PR
+
+## Verification
+
+- `git status` clean, `git log` shows the commit, `git ls-remote` shows the push.
+- Portability test: an agent with no prior context can follow every rule verbatim. Any rule that needs local context to make sense is not portable.
+- Solo test: every gate above can be satisfied by one agent, one machine, no second agent reachable.
+
+---
+
+* v0.3.1 — Human Gates and Autonomy (Toolbox #32): replaces blanket "human-gated" labels with the two-leg escalation test (irreversible AND drops logical work/exceeds scope), adds worked example and superset check for force-push, generalizes every blanket label to the test, and adds unreducible-gate clause. Updated Repository Operations first bullet to reflect autonomous operations under the escalation test. Fold-back of the OPSEC (c) identity-surfaces verification and the multi-profile install-verification recipe (Toolbox #35).* v0.3.0 — restored the two handoff sections (Discontinuing & handing off in-flight work; Handoff feature — spec & requirements, H1–H5 + AC1–AC5) required by issue #27's promotion spec but dropped during implementation (conformance RETURN t_2932c11c); completes the #27 acceptance criterion.
+* v0.2.9 — Compute Availability & Offload Routing (Toolbox #25): operational routing rule for when a dev agent's local inference engine becomes unavailable under project load; work routes to the next available tier (Primary -> Parallel-assist -> Coordination-escalation) with parallel-sharing semantics and no reassignment friction, offloading never demotes anyone. v0.2.8 — evidence-based dynamic capability routing (Toolbox #30): promotion/demotion bidirectional, model-name prior-only, re-tuning via recency window + event-driven updates. v0.2.7 — Hermes Install Source Protection (hard rule): live source at path reported by `hermes --version` (e.g. `~/.hermes/hermes-agent`) must never be moved, edited, or operated on as a dev tree; all Hermes-agent work must use a separate clone (e.g. `~/Projects/hermes-agent`); every agent must run `hermes --version` and record the Install directory before touching any Hermes source tree. Added after repeated install breakages from profile confusion between live install and dev clone. v0.2.6 — OPSEC history purge: a resolved OPSEC/PII leak is scrubbed at HEAD and purged from all history (git filter-repo: dry-run, bundle backup, apply, force-push), verified zero on origin and across all history, with the leak + resolution recorded for audit (Toolbox #22). v0.2.5 — Clean-tree gate (done gated on `git status --porcelain` clean + named artifacts in commit, Toolbox #11); canonical interpreter named and pinned in QA (Toolbox #12); bot-to-bot per-exchange cap + kanban-card fallback (Toolbox #14). v0.2.4 — Executed-QA gate added (mechanical gate with three admissible forms: run changed line, invoke API, or test exercises path; verdict records executed check and demonstrates pre-fix failure). v0.2.3 — QA tier rule: weakest-tier implementation requires higher-tier conformance QA; orchestrator sets the QA assignee per the rule; weakest-tier self-QA valid only after a passing QA card in that domain (output-based graduation). v0.2.2 — OPSEC promoted to an explicit checkable rule (team-identity-only, assume-public, never a personal GitHub identity, grep-before-ship); Installation & Distribution rule added (install shared skills from GitHub after merge, never from a local dev tree; verify by sha). v0.2.1 — promoted field rules. v0.2.0 — board layer, card types, atomicity test, spec-first gate, stop-and-report, QA task separation (same agent, fresh context), solo mode, branch hygiene merged-or-park. Prior: v0.1.4 (quality gates, git discipline, dual-location structure).*

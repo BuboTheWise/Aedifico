@@ -1,0 +1,108 @@
+{
+  "profile": "cthugha",
+  "scope": "tooling",
+  "check": "polygraph-health",
+  "result": {
+    "status": "yellow",
+    "details": "CLI importable & runs (--help exit 0), but 2 P0/P1 open issue(s) block/degrade tool usage: #11, #10. Tooling partially blocked.",
+    "metrics": {
+      "exit_code": 0,
+      "critical_issues": 2,
+      "p0_issues": 0,
+      "p1_issues": 2,
+      "p2_issues": 7,
+      "cli_import_error": false,
+      "issue_source": "gh-cli"
+    }
+  },
+  "time": "2026-11-22T23:40:12Z",
+  "_evidence": {
+    "polygraph_repo": "/home/stefan/Projects/Polygraph",
+    "github_repo": "BuboTheWise/Polygraph",
+    "cli_probe": {
+      "command": "python3 run_polygraph.py --help",
+      "script_path": "/home/stefan/Projects/Polygraph/scripts/run_polygraph.py",
+      "script_exists": true,
+      "ran": true,
+      "exit_code": 0,
+      "import_error": false,
+      "stdout_tail": "to $OPENAI_API_KEY)\n  --severity {critical,comprehensive,balanced,exhaustive}\n                        Test severity level (default: comprehensive)\n  --output OUTPUT       Write JSON report to file (in addition to stdout)\n  --no-tools            Skip tests that require tool invocation\n  --tests TESTS         Comma-separated list of specific test IDs to run (e.g.\n                        '1A,3B,11D')",
+      "stderr_tail": "",
+      "error": null
+    },
+    "issues": {
+      "P0": [],
+      "P1": [
+        {
+          "number": 11,
+          "title": "\"Run polygraph\" must test the invoking agent's active model, not a hardcoded `qwen3.5:9b` or a separate client",
+          "labels": [
+            "bug"
+          ],
+          "severity": "P1",
+          "blocking": true
+        },
+        {
+          "number": 10,
+          "title": "OPSEC: remove hardcoded user home paths (leaks a local username) so the skill runs from any install location",
+          "labels": [
+            "bug"
+          ],
+          "severity": "P1",
+          "blocking": true
+        }
+      ],
+      "P2": [
+        {
+          "number": 7,
+          "title": "CI acceptance suite: mock-server matrix, redaction, URL normalization, artifact hygiene",
+          "labels": [],
+          "severity": "P2",
+          "blocking": false
+        },
+        {
+          "number": 6,
+          "title": "Optional Hermes end-to-end mode with isolated test profiles (PR 6)",
+          "labels": [],
+          "severity": "P2",
+          "blocking": false
+        },
+        {
+          "number": 5,
+          "title": "Concurrency harness with per-level correctness gates (PR 5 \u2014 finding F9) + dual-engine measurement plan",
+          "labels": [],
+          "severity": "P2",
+          "blocking": false
+        },
+        {
+          "number": 4,
+          "title": "Streaming metrics per request (PR 4 \u2014 finding F8)",
+          "labels": [],
+          "severity": "P2",
+          "blocking": false
+        },
+        {
+          "number": 3,
+          "title": "Reproducible run manifest + config/plugin wiring (PR 3 \u2014 findings F6, F7)",
+          "labels": [],
+          "severity": "P2",
+          "blocking": false
+        },
+        {
+          "number": 2,
+          "title": "Real structured tool-call gates on sandbox fixtures (PR 2 \u2014 finding F3)",
+          "labels": [],
+          "severity": "P2",
+          "blocking": false
+        },
+        {
+          "number": 1,
+          "title": "Fix README/CLI drift and grading integrity (PR 1 \u2014 findings F1, F2, F4, F5, F10, F11)",
+          "labels": [],
+          "severity": "P2",
+          "blocking": false
+        }
+      ]
+    }
+  }
+}

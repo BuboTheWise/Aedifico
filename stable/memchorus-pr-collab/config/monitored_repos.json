@@ -1,0 +1,10 @@
+{
+  "internal": [
+    "BuboTheWise/MemChorus",
+    "BuboTheWise/MemPalace"
+  ],
+  "external": [
+    "ollama/ollama",
+    "huggingface/transformers"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "repos": [
+    {
+      "name": "MemChorus",
+      "url": "github.com/BuboTheWise/MemChorus",
+      "local_path": "~/Projects/MemChorus/",
+      "deploy_check": "pip show memchorus"
+    }
+  ]
+}

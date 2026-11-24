@@ -1,0 +1,115 @@
+{
+  "schema_version": "1.0.0",
+  "evidence_format": {
+    "required_fields": ["profile", "scope", "check", "result", "time"],
+    "result_schema": {
+      "type": "object",
+      "properties": {
+        "status": {"enum": ["green", "yellow", "red"]},
+        "details": {"type": "string"},
+        "metrics": {"type": "object"}
+      },
+      "required": ["status", "details"]
+    }
+  },
+  "pillars": [
+    {
+      "id": "memchorus-recall",
+      "name": "MemChorus Recall Verification",
+      "scope": "memory-context",
+      "status": "implemented",
+      "check_script": "team-health/scripts/check_recall.py",
+      "evidence_file": "team-health/evidence/recall-run-20261122.json",
+      "description": "Verifies actual recall injection in turns, NOT doctor-probe status.",
+      "critical_constraint": "Per #312: on_grok profile, pinned doctor passed while recall injection was off. Gateway Python cannot import memchorus, and on_pre_llm_call returns nothing with no warning.",
+      "check_method": "Verify MemChorus contribution block exists in turn's system prompt (content markers in request dumps; doctor probe as contrast signal only, parsed from stdout not exit code)",
+      "evidence_source": "request_dump_*.json under <profile>/sessions/ (API-failure captured turns — the only on-disk copy of a turn's real prompt)",
+      "content_markers": ["[MemChorus injected context]", "<!-- memchorus:recalled -->"],
+      "wrapper_marker": "[MemChorus Memory Recall] (block present, may contain no content — NOT a landing)",
+      "verdicts": {
+        "green": "content marker in >=1 of the last N captured turns, landing within --max-landing-age-hours (default 72h)",
+        "yellow": "#312 signature (probe green, no content landing) OR stale evidence (landing older than freshness window)",
+        "red": "no content in last N captured turns and probe red/unknown; or zero captured turns with probe red"
+      },
+      "false_positive_threshold": "Doctor-green but no actual recall landing in 3+ consecutive turns",
+      "false_negative_threshold": "No doctor probe result but recall actually lands",
+      "documented_misses": [
+        {"type": "false_positive", "profile": "cthugha", "case": "green on 461h-old landing (2026-11-03) with zero captured turns since", "fix": "freshness window (--max-landing-age-hours, default 72h) downgrades to yellow"},
+        {"type": "false_negative", "profile": "cthugha", "case": "red verdict while 2026-11-22 session actively receives injected recall block (dumps only capture API-failure turns; probe reflects gateway interpreter, not session interpreter)", "fix_next": "active in-process probe of on_pre_llm_call under the profile's actual Python asserting non-empty context_items"}
+      ]
+    },
+    {
+      "id": "polygraph-health",
+      "name": "Polygraph CLI Health",
+      "scope": "tooling",
+      "status": "implemented",
+      "check_script": "team-health/scripts/check_polygraph.py",
+      "evidence_file": "team-health/evidence/polygraph-run-20261122.json",
+      "description": "Ensures the Polygraph CLI is usable and no P0/P1 blockers exist.",
+      "check_method": "Two probes combined: (1) run `python3 scripts/run_polygraph.py --help` in the Polygraph repo and capture the real exit code (non-zero -> red); (2) list OPEN issues on the GitHub repo and classify each P0 (CLI cannot start/parse - import/startup failure, entrypoint crash), P1 (CLI runs but result wrong/unusable-in-context - hardcoded model, OPSEC/hardcoded home paths), P2 (non-blocking). critical_issues = P0 + P1 count. P0 import failures are cross-referenced against the live --help probe to detect stale issues (reproduces: false).",
+      "blocked_pr_threshold": "Any P0 or P1 polygraph issue blocking tool usage",
+      "verdicts": {
+        "green": "CLI --help exit 0 AND no open P0/P1 issues",
+        "yellow": "CLI --help exit 0 BUT >=1 open P0/P1 issue (tooling partially blocked)",
+        "red": "CLI --help exit != 0 (CLI not usable at all)"
+      },
+      "false_positive_threshold": "CLI --help exit 0 (green) but a real run against the model endpoint still fails -- --help only proves importability + arg-parsing, not a verified result",
+      "false_negative_threshold": "An open P0 CLI-import issue flagged blocking, but the current code no longer triggers that failure (stale issue over-penalises a working tool)",
+      "documented_misses": [
+        {"type": "false_positive", "profile": "cthugha", "case": "CLI --help exit 0 (would be green for the usability probe) but a real run `--tests 1A --base-url http://127.0.0.1:9 --no-tools` fails: '1A ERROR - All connection attempts failed', Overall Grade FAIL, exit 1. --help proves importability + arg-parsing only, not that the tool produces a verified result."},
+        {"type": "false_negative", "profile": "cthugha", "case": "issue #12 (P0, startup import failure on a missing local package) is OPEN so the blocker scan flags yellow, but the current code no longer imports that package and --help returns exit 0 from every context (repo root, neutral cwd, <profile-a> skill dir) - the failure no longer reprodues.", "fix_next": "check records reproduces:false on P0 import issues whose described failure the live --help probe does not show, so the stale issue is visible in evidence rather than silently over-penalising"}
+      ],
+      "metrics": {
+        "last_run_exit_code": "number",
+        "critical_issues_count": "number"
+      }
+    },
+    {
+      "id": "task-completion-rate",
+      "name": "Task Completion Rate",
+      "scope": "workflow-efficiency",
+      "status": "implemented",
+      "check_script": "team-health/scripts/check_completion.py",
+      "evidence_file": "team-health/evidence/completion-run-20261122.json",
+      "description": "% of tasks completing without blocking or rework.",
+      "check_method": "Read the shared kanban SQLite store (~/.hermes/kanban.db, same rows the kanban_list/kanban_show tools read) READ-ONLY. Window = last N (default 20) tasks with status='done'. A task is CLEAN iff (a) it has zero `blocked` events in task_events (covers every block kind: dependency/needs_input/capability/transient — the board's record of a blocked or needs_input status change) AND (b) every row in task_runs has a successful outcome (`completed`, `review_requested`); any of `blocked`, `crashed`, `timed_out`, `spawn_failed`, `gave_up`, `reclaimed`, `changes_requested` counts as rework. completion_rate = clean / total.",
+      "evidence_source": "kanban SQLite store: tasks + task_events + task_runs (never the board UI)",
+      "critical_constraint": "Read-only: check never modifies task data; auto-correction for low-rate trends = comment or new card, not a silent edit",
+      "verdicts": {
+        "green": "completion rate > 80% over last N tasks",
+        "yellow": "60-80% completion rate, OR fewer than 10 tasks in window (insufficient data)",
+        "red": "< 60% completion rate"
+      },
+      "false_positive_threshold": "Clean run history (one `completed` run, zero blocked events) on a task whose DELIVERED WORK later required follow-up fix tasks on the same issue — completion gate passed, work still failed downstream",
+      "false_negative_threshold": "Task penalised as rework/blocked (crashed runs or a blocked event) but the work ultimately succeeded — a delayed success, counted as a failure by design",
+      "documented_misses": [
+        {"type": "false_positive", "profile": "cthugha", "case": "t_caa89f9b (\"wing_isolation: accept {PROFILE}_{CATEGORY} as NATIVE for owning profile\") shows ONE `completed` run and zero blocked events — clean by this measure — yet issue #304 still required two later [FIX] tasks (t_f360c2e8, t_468a6223, \"Fix wing_isolation flags owning-profile wings as foreign\") because the delivered code was wrong. Same pattern: t_448d9258 (qa+merge #306, clean) followed by t_b794de90 (\"#308 follow-up: platform guards for 2 Windows test artifacts\")."},
+        {"type": "false_negative", "profile": "cthugha", "case": "t_c4232521 (\"memchorus-recall retrieve: flat-file fallback\") ran 3x crashed (2x \"owner admission settled failed\", 1x worker exited without a lifecycle call) before one successful `completed` run — this check counts it as rework, but the deliverable landed and the work succeeded; the verdict is a delayed-success penalty, not a failed task. t_fd00e142 (blocked on a behavioral guard, then completed) is the same class.", "fix_next": "distinguish transient-infrastructure rework (crashed/reclaimed) from work-content rework (blocked/changes_requested) in metrics so a green rate is not silently eroded by spawn flakiness"}
+      ],
+      "metrics": {
+        "completion_rate": "number (0-100, 1 decimal)",
+        "total_tasks": "number (window size actually analyzed)",
+        "clean_tasks": "number",
+        "blocked_tasks": "number (>=1 blocked event)",
+        "rework_tasks": "number (>=1 non-successful run)"
+      }
+    },
+    {
+      "id": "agent-communication",
+      "name": "Cross-Agent Communication Health",
+      "scope": "team-coordination",
+      "description": "DM delivery success rate between agents.",
+      "check_method": "Parse hermes-dm-* scratch logs for failed deliveries",
+      "thresholds": {
+        "green": ">95% delivery success",
+        "yellow": "80-95% delivery success",
+        "red": "<80% delivery success"
+      }
+    }
+  ],
+  "phase_gate_rules": {
+    "requirement": "No Phase N+1 until documented miss in Phase N",
+    "miss_definition": "Case where check said healthy (green) but work failed, OR check said unhealthy (yellow/red) but work succeeded",
+    "resolution": "Miss becomes next change to the check, not a note in chat"
+  }
+}

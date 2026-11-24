@@ -1,0 +1,335 @@
+{
+  "profile": "cthugha",
+  "scope": "workflow-efficiency",
+  "check": "task-completion-rate",
+  "result": {
+    "status": "green",
+    "details": "17/20 of the last 20 completed task(s) reached the completion gate without blockers or rework (85.0%); 2 had a blocked/needs_input status change, 2 had rework runs (crashed/blocked/timed-out). Verdict GREEN: completion rate > 80%.",
+    "metrics": {
+      "completion_rate": 85.0,
+      "total_tasks": 20,
+      "clean_tasks": 17,
+      "blocked_tasks": 2,
+      "rework_tasks": 2,
+      "window": 20
+    }
+  },
+  "time": "2026-11-22T23:42:47Z",
+  "_evidence": {
+    "kanban_db": "/home/stefan/.hermes/kanban.db",
+    "window": 20,
+    "min_tasks": 10,
+    "definition": {
+      "clean": "no blocked events AND all task_runs outcomes successful",
+      "successful_outcomes": [
+        "completed",
+        "review_requested"
+      ],
+      "rework_outcomes": [
+        "blocked",
+        "changes_requested",
+        "crashed",
+        "gave_up",
+        "reclaimed",
+        "spawn_failed",
+        "timed_out"
+      ]
+    },
+    "tasks": [
+      {
+        "id": "t_9b196736",
+        "title": "[dev] polygraph #12 \u2014 run_polygraph.py --help ModuleNotFoundError: polygraph_app",
+        "assignee": "bubo",
+        "completed_at": 1795390531,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_6e5dfde2",
+        "title": "RUN #1380 Pillar 4: Cross-agent communication health",
+        "assignee": "nyarlathotep",
+        "completed_at": 1795389993,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_4747ba6d",
+        "title": "FIX: Pillar 3 \u2014 Task completion rate (kanban board evidence analysis)",
+        "assignee": "cthugha",
+        "completed_at": 1795389472,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_d491c881",
+        "title": "[dev] memchorus #315 \u2014 gateway tool interpreter resolves memchorus (root gap #312)",
+        "assignee": "bubo",
+        "completed_at": 1795388525,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_34eaeaf2",
+        "title": "FIX: Pillar 2 \u2014 Polygraph CLI health check (CLI usability + blocker scan)",
+        "assignee": "cthugha",
+        "completed_at": 1795388126,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_c209011d",
+        "title": "RUN #1379 Pillar 3: Task completion rate tracking",
+        "assignee": "nyarlathotep",
+        "completed_at": 1795387508,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_be8f6512",
+        "title": "FIX: Pillar 1 \u2014 MemChorus recall verification check (actual content, not doctor-probe)",
+        "assignee": "cthugha",
+        "completed_at": 1795386479,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_34b46fa2",
+        "title": "RUN #1378 Pillar 2: Polygraph pull & skill usage heuristics",
+        "assignee": "nyarlathotep",
+        "completed_at": 1795385725,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_718c1bc1",
+        "title": "[ci] MemChorus master red CI: test_state_migrate.py platform failures (3 tests on Windows, 1 on Linux) \u2014 no tracking issue exists",
+        "assignee": "cthugha",
+        "completed_at": 1795384893,
+        "clean": false,
+        "blocked_events": 1,
+        "blocked_details": [
+          {
+            "reason": null,
+            "kind": null,
+            "recurrences": 1
+          }
+        ],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_e0442cf9",
+        "title": "RUN #1377 Pillar 1: MemChorus recall verification checks",
+        "assignee": "nyarlathotep",
+        "completed_at": 1795384861,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_77e00abf",
+        "title": "[dev] memchorus #314 \u2014 deployed-env parity: memchorus-init launcher NameError + stale site-packages",
+        "assignee": "bubo",
+        "completed_at": 1795382123,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_a4334f45",
+        "title": "FIX: Scaffold team-health skill structure + evidence schema",
+        "assignee": "nyarlathotep",
+        "completed_at": 1795379078,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_095c98bb",
+        "title": "spec: Team Health System \u2014 architecture & evidence schema",
+        "assignee": "nyarlathotep",
+        "completed_at": 1795379051,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_d0450bd1",
+        "title": "Remove all project-nomad / nomad-unchained artifacts (board, repo, local projects)",
+        "assignee": "cthugha",
+        "completed_at": 1795378036,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_fd00e142",
+        "title": "[dev] memchorus hooks: loud-degrade on missing orchestrator + doctor env check (GH #312)",
+        "assignee": "cthugha",
+        "completed_at": 1795376362,
+        "clean": false,
+        "blocked_events": 1,
+        "blocked_details": [
+          {
+            "reason": "Behavioral guard `distilled-a4c5c13b7f2e` is blocking ALL tool writes (terminal, execute_code, patch) regardless of target path. It fires on any tool call \u2014 even scratch workspace writes \u2014 because it ",
+            "kind": "capability",
+            "recurrences": 1
+          }
+        ],
+        "runs": [
+          "blocked",
+          "completed"
+        ],
+        "rework_runs": [
+          {
+            "outcome": "blocked",
+            "error_tail": ""
+          }
+        ]
+      },
+      {
+        "id": "t_74c19c39",
+        "title": "qa: #312 \u2014 independent verification (loud-degrade + doctor probe E)",
+        "assignee": "bubo",
+        "completed_at": 1795375917,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_70a5878d",
+        "title": "fix: #312 (2/2) install_doctor.py \u2014 probe E: in-process interpreter resolves memchorus",
+        "assignee": "cthugha",
+        "completed_at": 1795374899,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_3915d49f",
+        "title": "fix: #312 (1/2) hooks.py \u2014 loud-degrade warning when orchestrator unavailable",
+        "assignee": "cthugha",
+        "completed_at": 1795372590,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_eac588f4",
+        "title": "spec: #312 \u2014 recall-injection loud-degrade + doctor in-process interpreter probe",
+        "assignee": "cthugha",
+        "completed_at": 1795371378,
+        "clean": true,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "completed"
+        ],
+        "rework_runs": []
+      },
+      {
+        "id": "t_c4232521",
+        "title": "[dev] memchorus-recall retrieve: flat-file fallback + correct exit code (GH #255)",
+        "assignee": "bubo",
+        "completed_at": 1795370655,
+        "clean": false,
+        "blocked_events": 0,
+        "blocked_details": [],
+        "runs": [
+          "crashed",
+          "crashed",
+          "crashed",
+          "completed"
+        ],
+        "rework_runs": [
+          {
+            "outcome": "crashed",
+            "error_tail": "ut-length limit. To fix this: \u2192 Compress the conversation with `/compress` or start a new session \u2192 Or raise the model's context window (e.g. Ollama `num_ctx`)\""
+          },
+          {
+            "outcome": "crashed",
+            "error_tail": " without making progress. The last result above shows what blocked it. Tell me how you'd like to proceed, or send `continue` and I'll try a different approach.\""
+          },
+          {
+            "outcome": "crashed",
+            "error_tail": "ut-length limit. To fix this: \u2192 Compress the conversation with `/compress` or start a new session \u2192 Or raise the model's context window (e.g. Ollama `num_ctx`)\""
+          }
+        ]
+      }
+    ]
+  }
+}
