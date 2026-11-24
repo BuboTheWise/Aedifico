@@ -1,7 +1,7 @@
 ---
 name: team-dev-process
 description: "Use for team dev tasks: atomic cards, spec-first, QA gate."
-version: 0.1.10
+version: 0.1.8
 author: BuboTheWise, Hermes Agent
 metadata:
   hermes:
@@ -16,27 +16,6 @@ metadata:
 Canonical process for development work across Hermes profiles (Cthugha, Bubo; Nyarlathotep on standby). Applies to every project, no special paths. Where a project spec says otherwise on *what* to build, the spec wins; this process governs *how* work gets assigned, done, reviewed, and merged.
 
 **Canonical shared copy:** the Toolbox repo, `stable/development-process/SKILL.md` (repo is the governing copy; vault docs are historical source). Project-specific gates (e.g. Polygraph's full-battery-green requirement) live in the project's spec, not in the shared standard — a shared standard with project special cases is a pitfall, not a rule.
-
-**Installation / update mechanism:** Every profile that uses this skill **MUST** keep its copy in sync with the Toolbox repo. To update:
-```bash
-# Update from Toolbox repo (run this BEFORE starting any dev work):
-cp /home/stefan/Projects/Toolbox/stable/team-dev-process/SKILL.md ~/.hermes/profiles/<PROFILE>/skills/team-dev-process/SKILL.md
-sha256sum /home/stefan/Projects/Toolbox/stable/team-dev-process/SKILL.md \
-  ~/.hermes/profiles/<PROFILE>/skills/team-dev-process/SKILL.md
-# Verify the hashes match — if they differ, the profile is out of sync.
-```
-If the repo version's `version:` field is higher than the local version, the profile **must** be updated before any dev work begins. This is not optional — using a stale skill means missing rules and inconsistent process enforcement across agents. The install hook is the only mechanism that prevents silent divergence between profiles. When updating all profiles from the repo, always verify hash parity on every profile before proceeding.
-
-## External-State Mutation Gate
-
-A card whose completion **mutates external GitHub state** — closing or opening an issue, merging or commenting on a PR, force-pushing — is a **review-gated outcome, never a self-certified inline step.** This is the gate that keeps "the issue is closed on the repo" a reviewer-verified fact with an audit trail, rather than an assumption produced by a card's own step list.
-
-- **No inline mutation.** The mutation must not be a bare, unreviewed step inside a `RUN`/`FIX` card. It is the gated *consequence* of a passed review, not part of the card's free execution.
-- **Reach review with evidence.** Before the card may be considered done, the worker must bring it to the `review` column via `kanban_request_review`, attaching the audit package that proves the mutation is safe and correct: the origin SHA, the rule/feature-line grep hits, the canonical↔profile hash parity (e.g. 6/6 `sha256` identical), and the post-mutation `gh issue view --json state` readback.
-- **Reviewer ratifies the mutation.** Only a reviewer in a separate context (QA is task-separated, per Roles) may approve the closure/merge — via a follow-up card or an explicit gate-pass note naming the exact mutation (issue/PR number) and the evidence it relied on. The card is `done` only after that ratification; the readback is pasted on the card as the final artifact.
-- **Non-local completion contract.** Every card that mutates external GitHub state must set its `completion_contract` to a **non-local** value — `"OWNER/REPO"` or an explicit PR/issue URL — so completion is verified against GitHub. A `local-only` contract on an externally-mutating card is a process violation.
-
-**Why:** a `RUN` or `FIX` card that closes an issue inline on a `local-only` contract self-certifies its own externally-visible outcome. The gate moves that certification to a reviewer with the readback in hand, so "closed on the repo" is always a verified fact, never a side effect.
 
 ## Roles & Priority (user-directed)
 
@@ -53,7 +32,7 @@ A card whose completion **mutates external GitHub state** — closing or opening
 - States as labels: `ready → in-progress → qa → review → done`.
 - **Claim protocol:** a card enters `in-progress` only when an agent acks it (acknowledgment of understanding, before implementation). One owner at a time; named owner always.
 - Flow: creator writes the card → executor implements → creator (or partner) reviews → proof pasted → merge. This is what makes "load a bunch of work and collaborate independently" safe.
-- **Merge approval (autonomous):** a PR that has passed its QA gate — a higher-tier QA card returned an **APPROVED** verdict with the evidence pasted on the card — is **implicitly approved to merge**. The repo operator merges to main and deletes the branch; no further user sign-off. The process *is* the trust. A **QA RETURN continues the development cycle**: rework card → re-QA → re-merge — failed work goes back to dev, it never parks on a human approval. A parked open PR is for work that is deliberately incomplete, not work awaiting a signature. A **force-push rewriting history** is subject to the escalation test in development-process *Human Gates and Autonomy*: **no gate** when the superset check is empty (every remote commit has a local counterpart) and the push is inside card scope — that is routine; **gate** when the superset check lists a commit with no local counterpart, or the push exceeds card scope — presented with the orphan list + backup bundle, one decision per repo.
+- **Merge approval (autonomous):** a PR that has passed its QA gate — a higher-tier QA card returned an **APPROVED** verdict with the evidence pasted on the card — is **implicitly approved to merge**. The repo operator merges to main and deletes the branch; no further user sign-off. The process *is* the trust. A **QA RETURN continues the development cycle**: rework card → re-QA → re-merge — failed work goes back to dev, it never parks on a human approval. A parked open PR is for work that is deliberately incomplete, not work awaiting a signature. The one merge-adjacent operation that still needs an explicit user decision is a **force-push rewriting history** (presented with evidence + backup bundle, one decision per repo) — merging itself is not on that list.
 
 ## Card Discipline
 

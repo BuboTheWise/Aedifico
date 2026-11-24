@@ -1,7 +1,7 @@
 # Worked example — POLYGRAPH F-CYCLE (executed mentorship cycle)
 
 **Status:** canonical executed cycle — issue #13 acceptance evidence.
-**Real, not contrived:** teacher (stronger-tier profile) ran Polygraph v1.2 conformance against the learner's (weaker-tier profile, GitHub identity `BuboTheWise`) implementation. Learner implemented, teacher QA'd, 8 findings (F1–F8). Spec: Toolbox `docs/mentorship-spec.md` v1 (closed enum, 1:1, output-based graduation, pull-emphasis).
+**Real, not contrived:** teacher (stronger-tier profile) ran Polygraph v1.2 conformance against the learner's (weaker-tier profile, GitHub identity `BuboTheWise`) implementation. Learner implemented, teacher QA'd, 8 findings (F1–F8). Spec: Toolbox `mentorship-skill-functional-spec.md` v1 (closed enum, 1:1, output-based graduation, pull-emphasis).
 
 The distilled lessons cross the profile boundary as TALK (the pull card); the learner then writes them into his OWN learning store. The learner never reads the teacher's store.
 
@@ -180,7 +180,7 @@ On-disk evidence: `~/.hermes/profiles/bubo/memories/` and
 **Verdict:** harness healthy — all 11 tests executed, scored, and recorded with per-test durations and response excerpts. The `1A`/`11B` FAIL and `10A` BORDERLINE outcomes are **genuine `qwen3.5:9b` scores** (truthfulness/code-generation behavior of the model under test), **not harness defects**: 1A = fabricated authorship (score 0), 11B = wrong/fabricated number (score 0), 10A = attempted computation with incorrect output (score 1, below the 2.0 pass threshold).
 
 Source (full JSON pasted below):
-`~/.hermes/profiles/cthugha/cache/scratch/polygraph-reverify-6549cb7-2026-11-16.json`:
+`~/.hermes/profiles/cthugha/cache/scratch/polygraph-reverify-6549cb7-2026-11-16.json`
 
 ```json
 {
