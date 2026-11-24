@@ -1,6 +1,6 @@
 # Sources Map — Hermes + MemChorus
 
-Tool-level source map for the edification loop. Detection-first: confirm a tier is present before reading from it.
+Tool-level source map for the edification loop. Detection-first: confirm a tier is present before reading from it. Scheduled runs skip the turn/session horizons — those are owned by the agent runtime's background review.
 
 ## Detection
 
@@ -9,8 +9,8 @@ Tool-level source map for the edification loop. Detection-first: confirm a tier 
 | Hermes core | `memory`, `skills_list`, `read_file`/`search_files` in tool list | always, on any Hermes agent | (floor — cannot be absent) |
 | Session recall | `session_search` in tool list, else load via `tool_search(queries=["session history"])` | history tier available | session/weekly horizon degrades to hunches (thin evidence) — label, never block |
 | Cron | `cronjob_manage` in tool list or via `tool_search` | scheduled-work tier active | skip scheduled-work review |
-| MemChorus | `tool_search(queries=["mempalace diary"])` returns `mcp__mempalace__*` tools | durable-memory tier active | `memory` + session recall (or hunch fallback) only |
-| Bot-Mode | `message_agent` in tool list + non-empty roster | collaborative mode available | handoff doc in shared space |
+| MemChorus | `tool_search(queries=["mempalace diary"])` returns `mcp__mempalace__*` tools | durable-memory tier active; **primary durable sink** | `memory` + session recall (or hunch fallback) only |
+| Bot-Mode | `message_agent` in tool list + non-empty roster | collaborative mode available (two-tick) | handoff doc in shared space |
 
 ## MemChorus tools (mempalace MCP)
 
@@ -18,15 +18,14 @@ Tool-level source map for the edification loop. Detection-first: confirm a tier 
 |---|---|
 | `mcp__mempalace__mempalace_status` | sanity check the palace is reachable before relying on it |
 | `mcp__mempalace__mempalace_diary_read` | recent AAAK diary entries — the episodic layer between sessions |
-| `mcp__mempalace__mempalace_diary_write` | file session-end reflections that are episodic, not procedural |
 | `mcp__mempalace__mempalace_kg_query` | entity relationships — find what a topic touches |
 | `mcp__mempalace__mempalace_kg_timeline` | chronological facts — detect what changed and what is stale |
-| `mcp__mempalace__mempalace_kg_invalidate` / `mcp__mempalace__mempalace_kg_supersede` | artifacts: retire contradicted facts, replace at a boundary |
 | `mcp__mempalace__mempalace_search` | cross-session recall for a specific finding's evidence |
 | `mcp__mempalace__mempalace_list_drawers` / `mcp__mempalace__mempalace_get_drawer` | check for unfiled or orphaned drawers (sediment) |
-| `mcp__mempalace__mempalace_add_drawer` | file a durable fact verbatim when it does not fit kg/memory |
-| `mcp__mempalace__mempalace_checkpoint` | one-call session capture at the end of a long session |
 | `mcp__mempalace__mempalace_check_duplicate` | before filing anything new — avoid duplicate drawers |
+| `memchorus_remember` (MemChorus) | **the write path** — category-tagged durable writes (diary / kg / drawer). Use this instead of the raw palace write tools below |
+| `mcp__mempalace__mempalace_diary_write`, `mcp__mempalace__mempalace_add_drawer`, `mcp__mempalace__mempalace_checkpoint` | **legacy** raw write tools — prefer `memchorus_remember`; keep only when a category-tagged write is not expressible |
+| `mcp__mempalace__mempalace_kg_invalidate` / `mcp__mempalace__mempalace_kg_supersede` | **legacy** raw kg writes — prefer `memchorus_remember` for retire/replace; keep when a direct boundary op is required |
 
 **Placement rules (MemChorus vs memory vs skill):**
 
@@ -36,7 +35,7 @@ Tool-level source map for the edification loop. Detection-first: confirm a tier 
 
 ## session_search patterns
 
-Only when `session_search` is available (in the tool list, or loadable via `tool_search`). On an install where it is absent (e.g. some laptop profiles), the session/weekly horizon yields hunches — label them as thin evidence and do not block the pass.
+Only when `session_search` is available (in the tool list, or loadable via `tool_search`). On an install where it is absent (e.g. some laptop profiles), the weekly horizon yields hunches — label them as thin evidence and do not block the pass.
 
 - Corrections: `session_search(query="'no' | 'not that' | 'actually'", session_id=...)` — user pushbacks are the highest-signal findings.
 - Failures: `session_search(query="error | failed | blocked", session_id=...)`.
