@@ -12,7 +12,7 @@ The distilled lessons cross the profile boundary as TALK (the pull card); the le
 ## 1. Distilled lessons (domain: `qa`) — 3 lessons, all `hot`
 
 Source (pasted below; `teacher`/`learner` values redacted to tier roles for OPSEC):
-`~/.hermes/profiles/cthugha/cache/scratch/mentorship-qa-lessons-fcycle.md`
+`~/.hermes/profiles/<teacher-profile>/cache/scratch/mentorship-qa-lessons-fcycle.md`
 
 ### L1 — `qa-fcycle-exercise-under-condition`
 
@@ -180,7 +180,7 @@ On-disk evidence: `~/.hermes/profiles/bubo/memories/` and
 **Verdict:** harness healthy — all 11 tests executed, scored, and recorded with per-test durations and response excerpts. The `1A`/`11B` FAIL and `10A` BORDERLINE outcomes are **genuine `qwen3.5:9b` scores** (truthfulness/code-generation behavior of the model under test), **not harness defects**: 1A = fabricated authorship (score 0), 11B = wrong/fabricated number (score 0), 10A = attempted computation with incorrect output (score 1, below the 2.0 pass threshold).
 
 Source (full JSON pasted below):
-`~/.hermes/profiles/cthugha/cache/scratch/polygraph-reverify-6549cb7-2026-11-16.json`
+`~/.hermes/profiles/<teacher-profile>/cache/scratch/polygraph-reverify-6549cb7-2026-11-16.json`
 
 ```json
 {
@@ -323,7 +323,7 @@ Source (full JSON pasted below):
 
 ## Sources
 
-1. Distilled lessons (L1/L2/L3 + graduation rule): `~/.hermes/profiles/cthugha/cache/scratch/mentorship-qa-lessons-fcycle.md`
+1. Distilled lessons (L1/L2/L3 + graduation rule): `~/.hermes/profiles/<teacher-profile>/cache/scratch/mentorship-qa-lessons-fcycle.md`
 2. Learner-side persistence (drawer-ids + read-back): kanban pull card `t_831d569c` completion; on-disk `~/.hermes/profiles/bubo/memories/qa-fcycle-{exercise-under-condition,artifact-in-commit,spec-to-evidence}.md` and `~/.hermes/profiles/bubo/.mempalace/palace/bubo_LEARNING/` (same three files)
 3. F-finding → lesson mapping: per-lesson "Failure this came from" lines in source 1 (F8→L1, F6→L2, F4→L3); static-QA-missed-runtime-typo → L1/L3 per the F8/L3 evidence criteria
-4. Battery verdict: `~/.hermes/profiles/cthugha/cache/scratch/polygraph-reverify-6549cb7-2026-11-16.json` (run 2026-11-16 06:47–07:02, model `qwen3.5:9b`)
+4. Battery verdict: `~/.hermes/profiles/<teacher-profile>/cache/scratch/polygraph-reverify-6549cb7-2026-11-16.json` (run 2026-11-16 06:47–07:02, model `qwen3.5:9b`)
