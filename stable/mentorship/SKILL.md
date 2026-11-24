@@ -1,7 +1,7 @@
 ---
 
 name: mentorship
-version: 1.2
+version: 1.1
 description: >
   Bidirectional teaching protocol between heterogeneous local models under per-profile isolation.
   The weak pulls lessons; the strong distills only on explicit accept. Includes Truth-Enforcer
@@ -202,7 +202,6 @@ be checked from board alone, graduation state is not shared and does not count a
 2. **"Stronger" negotiated, never assumed.** Determined in-skill by dialogue + self-declared
    capability + board-history evidence. Never implicit model size or static rule. Manual
    override always wins, recorded on card.
-3. **Shared evidence basis (v1.2).** "Board-history evidence" is the same per-`(profile × scope)` record that development-process's QA routing rule consumes — same scope (stage tag + project), same verdict tokens, same N = 5 window. Dialogue may use the record, and the routing decision follows the record where it exists; negotiation never overrides a recorded demotion, and a recorded promotion never requires consent. Where **no** record exists (cold start), negotiation stays free — that is where a model name may nudge, and still never decide.
 3. **Bidirectional honesty, pull-emphasized.** Negotiation cheap gate; distillation only
    expensive step firing on accept + explicit request. Improvement not one-directional: teacher
    files correction and pulls lesson when learner's evidence contradicts. Talk-only both ways.
@@ -266,8 +265,6 @@ This spec is done when:
 - **VS8.** Confirm bidirectional honesty per reverse-direction (§reverse-direction): in v1, symmetric, talk-only, checkable.
 
 ## Phase-2 Exclusions {#phase-two}
-
-v1.2 — aligned the evidence basis with development-process v0.2.8 (shared per-scope record, shared stage enum, model as prior not determinant). v1.1 — bidirectional honesty, tier-agnostic Truth-Enforcer, shared graduation state.
 
 Multi-teacher lessons; time-based decay as graduation mechanism; adding/removing closed-enum domains
 without spec: card; note: strong-learns-from-weak-failure growth loop promoted into v1 and no longer phase-2.
