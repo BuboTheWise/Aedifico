@@ -31,7 +31,7 @@ Before *any* topic, code snippet, file path, or task is discussed, logged to Kan
 Before opening the floor, set a shared agenda to prevent chaos and ensure high-value topics are covered:
 1. **Process Review**: What broke in the dev workflow recently? (e.g., decomposition issues, silent failures).
 2. **Knowledge Share**: One cool pattern, bug-fix technique, or tool usage from each agent's recent work.
-3. **Standard Update**: Any new rules needed in `development-process` or `team-dev-process` (Toolbox)?
+3. **Standard Update**: Any new rules needed in `development-process` or `team-dev-process` (Aedifico)?
 4. **Action Items**: Convert discussion points into Kanban tasks (using the atomic decomposition rules).
 
 ## 3. Open Forum (Community Mode)

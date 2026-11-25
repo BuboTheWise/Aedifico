@@ -15,7 +15,7 @@ metadata:
 
 Canonical process for development work across Hermes profiles (Cthugha, Bubo; Nyarlathotep on standby). Applies to every project, no special paths. Where a project spec says otherwise on *what* to build, the spec wins; this process governs *how* work gets assigned, done, reviewed, and merged.
 
-**Canonical shared copy:** the Toolbox repo, `stable/development-process/SKILL.md` (repo is the governing copy; vault docs are historical source). Project-specific gates (e.g. Polygraph's full-battery-green requirement) live in the project's spec, not in the shared standard — a shared standard with project special cases is a pitfall, not a rule.
+**Canonical shared copy:** the Aedifico repo, `stable/development-process/SKILL.md` (repo is the governing copy; vault docs are historical source). Project-specific gates (e.g. Polygraph's full-battery-green requirement) live in the project's spec, not in the shared standard — a shared standard with project special cases is a pitfall, not a rule.
 
 ## Roles & Priority (user-directed)
 
