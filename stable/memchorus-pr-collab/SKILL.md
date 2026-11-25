@@ -51,7 +51,7 @@ List of external/internal repos whose open PRs we monitor and need to respond to
   "internal": [
     "BuboTheWise/MemChorus",
     "BuboTheWise/MemPalace",
-    "BuboTheWise/Toolbox"
+    "BuboTheWise/Aedifico"
   ],
   "external": [
     "ollama/ollama",
