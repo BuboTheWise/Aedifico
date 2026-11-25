@@ -4,7 +4,7 @@
 
 **Scope narrowing (Cards 2 & 3)**
 - Aedifico now owns the **weekly and cross-agent** horizons. Turn/session horizons are explicitly declared as owned by the agent runtime's background review (`agent/background_review.py`) — scheduled runs skip them.
-- Added **Toolbox Guard (hash parity)**: before any `skill_manage`, check `~/.hermes/skills/stable/`; skills shared there go to an issue/PR brief, not a local edit.
+- Added **Aedifico Guard (hash parity)**: before any `skill_manage` of a stable skill, verify the target is the canonical copy; edits go through an issue/PR brief, never local direct-to-stable.
 
 **MemChorus write path (Card 1)**
 - Durable writes go through `memchorus_remember` (category-tagged); raw palace write tools marked **legacy** in the sources map.

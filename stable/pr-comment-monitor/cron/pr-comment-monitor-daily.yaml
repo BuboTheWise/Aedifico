@@ -3,7 +3,7 @@ schedule: "0 4 * * *"
 timezone: America/Los_Angeles
 skills: [pr-comment-monitor, github]
 prompt: |
-  Run the PR comment monitor skill from the Toolbox workdir:
+  Run the PR comment monitor skill from the Aedifico workdir:
   
     python3 stable/pr-comment-monitor/scripts/pr_monitor.py
   

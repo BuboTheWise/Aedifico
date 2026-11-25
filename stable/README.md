@@ -1,4 +1,4 @@
-# Toolbox — Stable Skills Index
+# Aedifico — Stable Skills Index
 
 This directory contains production-ready skills shared across all Hermes agents. Each skill has:
 - **SKILL.md** — spec, usage docs, cron template, success criteria
@@ -10,12 +10,14 @@ This directory contains production-ready skills shared across all Hermes agents.
 To make a skill available to your profile's sessions:
 
 ```bash
-hermes skills install /home/stefan/Projects/Toolbox/stable/<skill-name>/SKILL.md
-```
+# Copy install (recommended for production use)
+cp -r stable/<skill-name> ~/.hermes/skills/<skill-name>
 
-Or symlink if you prefer local development access:
-```bash
-ln -s /home/stefan/Projects/Toolbox/stable/<skill-name> ~/.hermes/skills/<skill-name>
+# Or symlink for local development access
+ln -s /home/stefan/Projects/Aedifico/stable/<skill-name> ~/.hermes/skills/<skill-name>
+
+# Alternatively via CLI (fetch from raw GitHub)
+hermes skills install https://raw.githubusercontent.com/BuboTheWise/Aedifico/main/stable/<skill-name>/SKILL.md --category <cat> --yes
 ```
 
 ## Available Skills
@@ -28,6 +30,8 @@ ln -s /home/stefan/Projects/Toolbox/stable/<skill-name> ~/.hermes/skills/<skill-
 | `team-dev-process` | Team dev process conventions and coordination | No |
 | `sdlc-review` | Review Kanban handoffs and route verified outcomes | No |
 | `mentorship` | Bidirectional teaching protocol between agents | No |
+| `contrib-staging-repo` | Staging repo workflow for new skills | No |
+| `team-town-hall` | Structured team sync for process improvement | No |
 
 ## Adding a New Skill
 
