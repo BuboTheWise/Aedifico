@@ -1,6 +1,17 @@
 # Changelog
 
-## 0.2.0 — 2026-11-24
+## [0.2.1] - 2026-11-26 (This Release)
+
+**New CLI with --dry-run support**
+- Added `python -m aedifico weekly [--dry-run]` command for generating weekly reflection reports
+- Safe preview mode (`-n`) prints report without writing files or calling external tools  
+- Three evidence sources: polygraph results, completion metrics, communication analysis
+- Errors propagate to stderr with exit code 1
+- Environment variables for testing failures (see README)
+
+---
+
+## [0.2.0] — 2026-11-24
 
 **Scope narrowing (Cards 2 & 3)**
 - Aedifico now owns the **weekly and cross-agent** horizons. Turn/session horizons are explicitly declared as owned by the agent runtime's background review (`agent/background_review.py`) — scheduled runs skip them.

@@ -121,3 +121,61 @@ Natural language: *"reflect"*, *"run a retrospective"*, *"self-improvement pass"
 ## License
 
 MIT.
+
+---
+
+## CLI Usage (New in 0.2.1)
+
+```bash
+python -m aedifico weekly [--dry-run]
+```
+
+### Options
+
+- `--dry-run` / `-n`: Print what would be written without creating files or calling external tools. Stderr shows "would write: <path>". Exit code 0 if evidence computation succeeded, 1 on error.
+- `-w`, `--write`: Enable file writing (ignored in `--dry-run` mode; `--dry-run` takes precedence for safety)
+
+### Exit Codes
+
+- `0`: Evidence computed successfully (both modes)
+- `1`: Evidence computation failed (error message printed to stderr)
+- `2`: Invalid arguments (unknown subcommand, missing required subcommand)
+
+### Behavior Summary
+
+- **Normal mode** (`python -m aedifico weekly`): Gathers evidence from all sources, prints report to stdout, writes file to current directory silently.
+- **Dry-run mode** (`python -m aedifico weekly --dry-run`): Same stdout output, doesn't write files, stderr shows "would write: <path>".
+- Both modes gather the same evidence and print identical stdout - only the apply phase differs (file writing).
+
+### Example
+
+```bash
+# Dry-run preview only (no files written)
+python -m aedifico weekly --dry-run
+
+# Normal mode (writes report file silently)
+python -m aedifico weekly
+```
+
+### Environment Variables for Testing
+
+- `AEDIFICO_TEST_FAIL_COMPLETION=1`: Simulates failure in completion data computation
+- `AEDIFICO_TEST_FAIL_COMMUNICATION=1`: Simulates failure in communication metrics computation  
+- `AEDIFICO_TEST_FAIL_POLYGRAPH=1`: Simulates failure in polygraph results computation
+- `AEDIFICO_DRY_RUN_DIR=...`: Directory where dry-run reports would be written (default: ".")
+
+These can be used to test error handling:
+
+```bash
+# Normal operation
+python -m aedifico weekly --dry-run
+
+# Test error handling with simulated failure
+AEDIFICO_TEST_FAIL_COMPLETION=1 python -m aedifico weekly --dry-run
+```
+
+### Subcommand Handling
+
+- Only `weekly` subcommand is recognized
+- Missing or unknown subcommand → non-zero exit (argparse behavior)
+- Typo like `wekly` → rejected by argparse with error message
