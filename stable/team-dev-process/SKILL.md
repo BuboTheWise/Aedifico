@@ -1,7 +1,7 @@
 ---
 name: team-dev-process
 description: "Use for team dev tasks: atomic cards, spec-first, QA gate."
-version: 0.1.8
+version: 0.1.9
 author: BuboTheWise, Hermes Agent
 metadata:
   hermes:
@@ -70,7 +70,7 @@ See [`templates/card-chain-bodies.md`](templates/card-chain-bodies.md) for pre-a
 Project applications fall into two categories:
 
 - **Installable apps:** built, packaged, or pip-installable from GitHub (e.g. MemChorus). These are tested by installing the latest release — never from a local dev tree.
-- **Non-installable / local-only apps:** source-pulled and run in-place, typically for OPSEC (Aletheia). The install-from-GitHub loop does not apply.
+- **Non-installable / local-only apps:** source-pulled and run in-place, typically for OPSEC (kept off any remote). The install-from-GitHub loop does not apply.
 
 ### Required cycle for every installable app
 
@@ -88,9 +88,11 @@ MemChorus is foundational to every other workflow. Its development gets highest 
 - Verify functional on all profiles where it runs — each profile is a separate test environment. A fix that works on one profile but not another is NOT done.
 - After every round of changes: merge → push → reinstall fresh from GitHub on EVERY profile → verify functionality → document any remaining known gaps as issues with clear priority for next cycle.
 
-### Non-installable exception: Aletheia
+### Non-installable exception: local-only (OPSEC) projects
 
-Aletheia is private, OPSEC-sensitive software developed and run locally only. The install-from-GitHub loop does not apply — it is tested by running `aletheia` directly in the working tree after changes are made.
+A local-only, OPSEC-sensitive project has **no remote** — it is developed and run in place, and the install-from-GitHub loop does not apply. Test by running it directly from the working tree after changes are made.
+
+- **The remote defines scope, not the project name.** "Has a remote?" is the check — never a project name. No local-only project, its paths, or its local identity is named anywhere in this document (it is a public surface).
 
 - **Verify state on disk, not in chat.** After any DM / stop / hold order to a bot agent, confirm with `git status` + file mtime before reporting state. A queued ack is not execution; an in-flight turn continues past a stop order.
 - **Symlink is not a hardlink.** Before claiming "synced to all profiles," check the inode of EVERY profile path. Same file reached by two symlinks is one file; a different inode is a different file that changes did not reach. Check all cases before concluding.
